@@ -1,27 +1,27 @@
 NMAP AND SSH PROTECTION ATTACKS USING NFTABLES AND CROWDSEC ON DEBIAN12
 
-1. Requisitos Previos
- - Sistema: Debian 12 actualizado.
- - Privilegios: Acceso con usuario root o mediante sudo.
- - Conexión a Internet: Necesaria para descargar paquetes y actualizaciones.
- - Conocimientos básicos: Familiaridad con la terminal y edición de archivos de configuración.
+    1. Requisitos Previos
+        - Sistema: Debian 12 actualizado.
+        - Privilegios: Acceso con usuario root o mediante sudo.
+        - Conexión a Internet: Necesaria para descargar paquetes y actualizaciones.
+        - Conocimientos básicos: Familiaridad con la terminal y edición de archivos de configuración.
 
-2. Instalación y Configuración de nftables
-2.1 Instalación
-Actualiza el sistema e instala nftables con:
- - sudo apt update
- - sudo apt install nftables
+    2. Instalación y Configuración de nftables
+        
+    2.1 Instalación
+            Actualiza el sistema e instala nftables con:
+                 - sudo apt update
+                 - sudo apt install nftables
 
-2.2 Habilitar y Arrancar el Servicio
-Para que nftables se inicie automáticamente al arrancar el sistema, ejecuta:
+    2.2 Habilitar y Arrancar el Servicio
+        Para que nftables se inicie automáticamente al arrancar el sistema, ejecuta:
+             - sudo systemctl enable nftables
+             - sudo systemctl start nftables
 
- - sudo systemctl enable nftables
- - sudo systemctl start nftables
+    2.3 Configuración Avanzada
+        La siguiente configuración utiliza un conjunto dinámico llamado blocklist. Este conjunto almacenará las IPs que Crowdsec identifique como maliciosas. Además, se aplican reglas para limitar intentos de conexión en SSH y para bloquear patrones de escaneo típicos de herramientas como nmap.
 
-2.3 Configuración Avanzada
-La siguiente configuración utiliza un conjunto dinámico llamado blocklist. Este conjunto almacenará las IPs que Crowdsec identifique como maliciosas. Además, se aplican reglas para limitar intentos de conexión en SSH y para bloquear patrones de escaneo típicos de herramientas como nmap.
-
-Crea o edita el archivo /etc/nftables.conf con el siguiente contenido:
+        Crea o edita el archivo /etc/nftables.conf con el siguiente contenido:
 
 #!/usr/sbin/nft -f
 flush ruleset
@@ -67,88 +67,109 @@ table inet filter {
     }
 }
 
-Explicación de las principales reglas:
+    Explicación de las principales reglas:
 
- - flush ruleset: Limpia cualquier regla previa para evitar conflictos.
- - blocklist: Define un conjunto dinámico de IPs que se bloquearán automáticamente durante 1 hora.
- - ct state established,related accept: Permite tráfico de conexiones ya establecidas o relacionadas.
- - iifname "lo" accept: Se permite el tráfico de la interfaz loopback.
- - ICMP: Se permite el ping (echo-request y echo-reply).
- - SSH con limitación: Solo se aceptan hasta 15 nuevas conexiones por minuto al puerto 22, ayudando a mitigar ataques de fuerza bruta.
- - ip saddr @blocklist drop: Bloquea el tráfico proveniente de IPs presentes en la lista dinámica.
- - Bloqueo de escaneos nmap: Se aplican reglas para descartar paquetes con combinaciones de flags consideradas anómalas (características de ciertos escaneos).
+     - flush ruleset: Limpia cualquier regla previa para evitar conflictos.
+     - blocklist: Define un conjunto dinámico de IPs que se bloquearán automáticamente durante 1 hora.
+     - ct state established,related accept: Permite tráfico de conexiones ya establecidas o relacionadas.
+     - iifname "lo" accept: Se permite el tráfico de la interfaz loopback.
+     - ICMP: Se permite el ping (echo-request y echo-reply).
+     - SSH con limitación: Solo se aceptan hasta 15 nuevas conexiones por minuto al puerto 22, ayudando a mitigar ataques de fuerza bruta.
+     - ip saddr @blocklist drop: Bloquea el tráfico proveniente de IPs presentes en la lista dinámica.
+     - Bloqueo de escaneos nmap: Se aplican reglas para descartar paquetes con combinaciones de flags consideradas anómalas (características de ciertos escaneos).
 
-Una vez guardado el archivo, aplica la configuración ejecutando:
- - sudo nft -f /etc/nftables.conf
+        Una vez guardado el archivo, aplica la configuración ejecutando:
+             - sudo nft -f /etc/nftables.conf
 
-3. Instalación y Configuración de Crowdsec
-Crowdsec es un sistema colaborativo que analiza logs en busca de comportamientos maliciosos y genera decisiones (por ejemplo, bloqueos) que se pueden aplicar automáticamente mediante un bouncer.
+    3. Instalación y Configuración de Crowdsec
+        Crowdsec es un sistema colaborativo que analiza logs en busca de comportamientos maliciosos y genera decisiones (por ejemplo, bloqueos) que se pueden aplicar automáticamente mediante un bouncer.
 
-3.1 Instalación de Crowdsec
-Agregar el repositorio oficial de Crowdsec:
-Ejecuta el siguiente comando para instalar el script que configura el repositorio:
- - curl -s https://packagecloud.io/install/repositories/crowdsec/crowdsec/script.deb.sh | sudo bash
+    3.1 Instalación de Crowdsec
+        Agregar el repositorio oficial de Crowdsec:
+        Ejecuta el siguiente comando para instalar el script que configura el repositorio:
+             - curl -s https://packagecloud.io/install/repositories/crowdsec/crowdsec/script.deb.sh | sudo bash
 
-Instalar Crowdsec:
- - sudo apt install crowdsec
+        Instalar Crowdsec:
+             - sudo apt install crowdsec
 
-Verificar el estado del servicio:
- - sudo systemctl status crowdsec
+        Verificar el estado del servicio:
+             - sudo systemctl status crowdsec
 
-3.2 Instalación del Bouncer para nftables
-El bouncer es el componente que se encarga de aplicar las decisiones de Crowdsec en nftables, actualizando el conjunto dinámico blocklist.
+    3.2 Instalación del Bouncer para nftables
+        El bouncer es el componente que se encarga de aplicar las decisiones de Crowdsec en nftables, actualizando el conjunto dinámico blocklist.
 
-Instala el bouncer para nftables:
- - sudo apt install crowdsec-firewall-bouncer-nftables
+        Instala el bouncer para nftables:
+            - sudo apt install crowdsec-firewall-bouncer-nftables
 
-3.3 Configuración de Escenarios y Fuentes de Logs
-Crowdsec trae escenarios preconfigurados para detectar ataques en SSH, fuerza bruta y otros vectores. Para instalar la colección de escenarios de Linux, ejecuta:
- - sudo cscli collections install crowdsecurity/linux
+    3.3 Configuración de Escenarios y Fuentes de Logs
+        Crowdsec trae escenarios preconfigurados para detectar ataques en SSH, fuerza bruta y otros vectores. Para instalar la colección de escenarios de Linux, ejecuta:
+             - sudo cscli collections install crowdsecurity/linux
+             - sudo cscli collections install crowdsecurity/sshd
 
-Revisa los escenarios disponibles:
- - sudo cscli scenarios list
+        Si nos inidica "Nothing to do." ya estaran instaladas.
 
-Tienes mas colecciones disponibles con:
- - sudo cscli collections list -a
+        Revisa los escenarios disponibles:
+             - sudo cscli scenarios list
 
-Integración con nftables:
-El bouncer leerá las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizará automáticamente el conjunto blocklist definido en tu archivo de nftables. De esta forma, las IPs maliciosas quedarán bloqueadas durante el tiempo configurado (1 hora en este ejemplo).
+        Tienes mas colecciones disponibles con:
+             - sudo cscli collections list -a
 
-3.4 Reiniciar Servicios
-Para asegurarte de que todos los cambios se apliquen, reinicia los servicios de Crowdsec y del bouncer:
- - sudo systemctl restart crowdsec
- - sudo systemctl restart crowdsec-firewall-bouncer-nftables
+        Integración con nftables:
+            El bouncer leerá las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizará automáticamente el conjunto blocklist definido en tu archivo de nftables. De esta forma, las IPs maliciosas quedarán bloqueadas durante el tiempo configurado (1 hora en este ejemplo).
 
-4. Verificación y Monitorización
-4.1 Verificar Reglas de nftables
-Para comprobar que las reglas están activas, utiliza:
- - sudo nft list ruleset
+    3.4 Reiniciar Servicios
+        Para asegurarte de que todos los cambios se apliquen, reinicia los servicios de Crowdsec y del bouncer:
+             - sudo systemctl restart crowdsec
+             - sudo systemctl restart crowdsec-firewall-bouncer-nftables
 
-4.2 Comprobar el Estado de Crowdsec
-Revisa los logs de Crowdsec para ver la actividad y decisiones:
- - sudo journalctl -u crowdsec
-
-Y consulta las decisiones (por ejemplo, las IP bloqueadas) con:
- - sudo cscli decisions list
-
-4.3 Monitorización de Bloqueos
-El bouncer actualiza dinámicamente la blocklist. Puedes revisar esta lista con:
- - sudo nft list set inet filter blocklist
- - sudo cscli alerts list
+    4. Verificación y Monitorización
  
-Esta visualización te mostrará las IPs actualmente bloqueadas junto con su tiempo restante.
+    4.1 Verificar Reglas de nftables
+        Para comprobar que las reglas están activas, utiliza:
+             - sudo nft list ruleset
 
-5. Consideraciones Finales
-Ajustes según necesidades:
-Dependiendo del entorno y la cantidad de tráfico, es posible que debas ajustar los límites (por ejemplo, en la regla SSH) o las reglas de bloqueo para reducir falsos positivos.
+    4.2 Comprobar el Estado de Crowdsec
+        Revisa los logs de Crowdsec para ver la actividad y decisiones:
+             - sudo journalctl -u crowdsec
 
-Actualización de escenarios:
-Mantén actualizada la colección de escenarios de Crowdsec para beneficiarte de las últimas reglas y detecciones.
+    4.3 Administrar decisiones
+    
+        Las decisiones son las reglas que bloquaran o no el trafico desde las direcciones espeficificadas, para administrarlas teneomos las siguientes utilidades:
+            List decisions:
+                 - cscli decisions list
+    
+        Añadir decision
+            individual (no recomended, use nftables por eficient resources on linux)
+                 - sudo cscli decisions add --ip 192.168.1.1 --duration 87600h --reason "web bruteforce"
+            range
+                 - sudo cscli decisions add --ip cscli decisions add --range 162.142.125.0/24 --duration 87600h --reason "Ataques SSH de Cersys" 109.205.213.99 --duration 0 --reason "Ataque SSH"
 
-Monitorización constante:
-Revisa periódicamente los logs y las decisiones para afinar la configuración de seguridad según el comportamiento real de tu red.
+        Delete a decision
+            individual
+            delete the decision on IP address 162.142.125.50
+                 - sudo cscli decisions delete --ip 162.142.125.50
+            range
+            delete the decision on IP range 162.142.125.0/24
+                 - sudo cscli decisions delete --range 162.142.125.0/24
 
-Conclusión
-Esta guía te proporciona una configuración avanzada de nftables con un conjunto dinámico que se integra con Crowdsec. Con esta solución, tu sistema Debian 12 estará protegido contra escaneos nmap y accesos SSH no autorizados, además de contar con una capa colaborativa de seguridad que bloquea automáticamente las IPs maliciosas.
+    4.4 Monitorización de Bloqueos
+        El bouncer actualiza dinámicamente la blocklist. Puedes revisar esta lista con:
+             - sudo nft list set inet filter blocklist
+             - sudo cscli alerts list
+ 
+        Esta visualización te mostrará las IPs actualmente bloqueadas junto con su tiempo restante.
 
-Implementa y ajusta estas configuraciones según las características específicas de tu red para mantener una defensa proactiva y adaptativa.
+    5. Consideraciones Finales
+        Ajustes según necesidades:
+        Dependiendo del entorno y la cantidad de tráfico, es posible que debas ajustar los límites (por ejemplo, en la regla SSH) o las reglas de bloqueo para reducir falsos positivos.
+
+        Actualización de escenarios:
+            Mantén actualizada la colección de escenarios de Crowdsec para beneficiarte de las últimas reglas y detecciones.
+
+        Monitorización constante:
+        Revisa periódicamente los logs y las decisiones para afinar la configuración de seguridad según el comportamiento real de tu red.
+
+    6. Conclusión
+        Esta guía te proporciona una configuración avanzada de nftables con un conjunto dinámico que se integra con Crowdsec. Con esta solución, tu sistema Debian 12 estará protegido contra escaneos nmap y accesos SSH no autorizados, además de contar con una capa colaborativa de seguridad que bloquea automáticamente las IPs maliciosas.
+
+        Implementa y ajusta estas configuraciones según las características específicas de tu red para mantener una defensa proactiva y adaptativa.
