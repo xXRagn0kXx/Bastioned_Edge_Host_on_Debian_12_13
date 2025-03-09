@@ -19,20 +19,29 @@ NMAP AND SSH PROTECTION ATTACKS USING NFTABLES AND CROWDSEC ON DEBIAN12
              - sudo systemctl start nftables
 
     2.3 Configuración Avanzada
-        La siguiente configuración utiliza un conjunto dinámico llamado blocklist. Este conjunto almacenará las IPs que Crowdsec identifique como maliciosas. Además, se aplican reglas para limitar intentos de conexión en SSH y para bloquear patrones de escaneo típicos de herramientas como nmap.
+        La siguiente configuración utiliza un conjunto dinámico llamado blocklist. Este conjunto almacenará las IPs que Crowdsec identifique como maliciosas. Además, se aplican reglas para limitar intentos de conexión en SSH y para bloquear patrones de escaneo típicos de herramientas como Nmap.
 
         Crea o edita el archivo /etc/nftables.conf con el siguiente contenido:
+             - sudo nano /etc/nftables.conf
 
 #!/usr/sbin/nft -f
 flush ruleset
 
 table inet filter {
+
         # Conjunto dinámico para IPs bloqueadas, con timeout de 1 hora
         set blocklist {
         type ipv4_addr
         flags dynamic, timeout
         timeout 1h
-}
+        }
+
+        # Conjunto dinámico para IPs bloqueadas (IPv6)
+        set blocklist6 {
+        type ipv6_addr
+        flags dynamic, timeout
+        timeout 1h
+        }
 
         chain input {
                 type filter hook input priority 0; policy drop;
@@ -46,11 +55,12 @@ table inet filter {
         # Permitir ICMP (ping) - solo echo-request y echo-reply
                 ip protocol icmp icmp type { echo-request, echo-reply } accept
 
-        # Permitir conexiones SSH (puerto 22) y limitar nuevas conexiones a 10 por minuto añadiendolas a un contador
-                tcp dport 22 ct state new limit rate 10/minute counter accept
+        # Permitir conexiones SSH (puerto 65065) y limitar nuevas conexiones a 10 por minuto añadiendolas a un contador
+                tcp dport 65065 ct state new limit rate 10/minute counter accept
 
         # Bloquear IPs que estén en la blocklist (actualizada por Crowdsec)
                 ip saddr @blocklist drop
+                ip6 saddr @blocklist6 drop
 
         # Bloquear escaneos nmap comunes mediante combinaciones inusuales de flags TCP
         # Escaneo NULL: todos los flags desactivados
@@ -94,6 +104,7 @@ table inet filter {
                 type filter hook output priority 0; policy accept;
         }
 }
+
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -153,10 +164,36 @@ table inet filter {
         Tienes mas colecciones disponibles con:
              - sudo cscli collections list -a
 
-        Integración con nftables:
+    3.4    Integración con nftables:
             El bouncer leerá las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizará automáticamente el conjunto blocklist definido en tu archivo de nftables. De esta forma, las IPs maliciosas quedarán bloqueadas durante el tiempo configurado (1 hora en este ejemplo).
+            Si deseas que CrowdSec actualice las listas en tu fichero de reglas personalizadas, debes modificar la configuración del bouncer para que apunte a la misma tabla y cadena donde se encuentran tus sets en el fichero /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
 
-    3.4 Reiniciar Servicios
+             - sudo   nano /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+
+            En el apartado  ## nftables del fichero debemos modificar los valores table y chain con filter e input tal y como hemos puesto en el nonbre de la configuracion de nuestro /etc/nftables.conf
+
+## nftables
+nftables:
+  ipv4:
+    enabled: true
+    set-only: false
+    table: filter
+    chain: input
+    priority: -10
+  ipv6:
+    enabled: true
+    set-only: false
+    table: filter
+    chain: input
+    priority: -10
+
+nftables_hooks:
+  - input
+  - forward
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+    3.5 Reiniciar Servicios
         Para asegurarte de que todos los cambios se apliquen, reinicia los servicios de Crowdsec y del bouncer:
              - sudo systemctl restart crowdsec
              - sudo systemctl restart crowdsec-firewall-bouncer-nftables
