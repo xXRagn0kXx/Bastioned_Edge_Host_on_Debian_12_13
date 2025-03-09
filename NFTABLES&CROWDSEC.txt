@@ -46,7 +46,7 @@ table inet filter {
         # Permitir ICMP (ping) - solo echo-request y echo-reply
                 ip protocol icmp icmp type { echo-request, echo-reply } accept
 
-        # Permitir conexiones SSH (Puerto 22) y limitar nuevas conexiones a 10 por minuto añadiendolas a un contador
+        # Permitir conexiones SSH (puerto 22) y limitar nuevas conexiones a 10 por minuto añadiendolas a un contador
                 tcp dport 22 ct state new limit rate 10/minute counter accept
 
         # Bloquear IPs que estén en la blocklist (actualizada por Crowdsec)
@@ -56,10 +56,10 @@ table inet filter {
         # Escaneo NULL: todos los flags desactivados
                 tcp flags & (fin|syn|rst|psh|ack|urg) == 0x0 drop
 
-         # Escaneo FIN: solo flag FIN activo
+        # Escaneo FIN: solo flag FIN activo
                 tcp flags & (fin|syn) == fin drop
 
-         # Escaneo XMAS: FIN, PSH y URG activos
+        # Escaneo XMAS: FIN, PSH y URG activos
                 tcp flags & (fin|psh|urg) == fin|psh|urg drop
 
         # Combinaciones inválidas de flags (SYN con FIN/RST)
@@ -71,6 +71,19 @@ table inet filter {
 
         # Escaneo Maimon: FIN activo con URG/PSH inactivos
                 tcp flags & (fin|psh|urg) == fin drop
+
+        # Protección contra paquetes inválidos
+                ct state invalid counter drop
+
+        # Protección contra fragmentación sospechosa
+        ip frag-off & 0x1fff != 0 counter drop
+
+        # Límite global de nuevas conexiones (Opcional)
+        # ct state new limit rate 30/second counter accept
+
+        # Logging de paquetes bloqueados (opcional)
+        counter log prefix "Packet Blocked: " drop
+
         }
 
         chain forward {
@@ -81,6 +94,7 @@ table inet filter {
                 type filter hook output priority 0; policy accept;
         }
 }
+
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
     Explicación de las principales reglas:
@@ -96,6 +110,15 @@ table inet filter {
 
         Una vez guardado el archivo, aplica la configuración ejecutando:
              - sudo nft -f /etc/nftables.conf
+        
+        Reiniciamos el servicio para aplicar los cambios
+             -  sudo systemctl restart nftables.service
+        
+        Comprobamos el servicio
+             - sudo systemctl status nftables.service
+
+    Si todo esta ok hemos completado el nucleo de defensa del Nmap
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
     3. Instalación y Configuración de Crowdsec
         Crowdsec es un sistema colaborativo que analiza logs en busca de comportamientos maliciosos y genera decisiones (por ejemplo, bloqueos) que se pueden aplicar automáticamente mediante un bouncer.
