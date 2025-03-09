@@ -27,46 +27,62 @@ NMAP AND SSH PROTECTION ATTACKS USING NFTABLES AND CROWDSEC ON DEBIAN12
 flush ruleset
 
 table inet filter {
-    # Conjunto dinámico para IPs bloqueadas, con timeout de 1 hora
-    set blocklist {
+        # Conjunto dinámico para IPs bloqueadas, con timeout de 1 hora
+        set blocklist {
         type ipv4_addr
         flags dynamic, timeout
         timeout 1h
-    }
-
-    chain input {
-        type filter hook input priority 0; policy drop;
-
-        # Permitir conexiones ya establecidas o relacionadas
-        ct state established,related accept
-
-        # Permitir tráfico en la interfaz local (loopback)
-        iifname "lo" accept
-
-        # Permitir ICMP (ping) - solo echo-request y echo-reply
-        ip protocol icmp icmp type { echo-request, echo-reply } accept
-
-        # Permitir conexiones SSH (puerto 22) y limitar nuevas conexiones a 15 por minuto
-        tcp dport 22 ct state new limit rate 15/minute accept
-
-        # Bloquear IPs que estén en la blocklist (actualizada por Crowdsec)
-        ip saddr @blocklist drop
-
-        # Bloquear escaneos nmap comunes mediante combinaciones inusuales de flags TCP
-        tcp flags & (syn|fin) == (syn|fin) drop
-        tcp flags & (syn|rst) == (syn|rst) drop
-        tcp flags & (fin|psh|urg) == (fin|psh|urg) drop
-    }
-
-    chain forward {
-        type filter hook forward priority 0; policy drop;
-    }
-
-    chain output {
-        type filter hook output priority 0; policy accept;
-    }
 }
 
+        chain input {
+                type filter hook input priority 0; policy drop;
+
+        # Permitir conexiones ya establecidas o relacionadas
+                ct state established,related accept
+
+        # Permitir tráfico en la interfaz local (loopback)
+                iifname "lo" accept
+
+        # Permitir ICMP (ping) - solo echo-request y echo-reply
+                ip protocol icmp icmp type { echo-request, echo-reply } accept
+
+        # Permitir conexiones SSH (Puerto 22) y limitar nuevas conexiones a 10 por minuto añadiendolas a un contador
+                tcp dport 22 ct state new limit rate 10/minute counter accept
+
+        # Bloquear IPs que estén en la blocklist (actualizada por Crowdsec)
+                ip saddr @blocklist drop
+
+        # Bloquear escaneos nmap comunes mediante combinaciones inusuales de flags TCP
+        # Escaneo NULL: todos los flags desactivados
+                tcp flags & (fin|syn|rst|psh|ack|urg) == 0x0 drop
+
+         # Escaneo FIN: solo flag FIN activo
+                tcp flags & (fin|syn) == fin drop
+
+         # Escaneo XMAS: FIN, PSH y URG activos
+                tcp flags & (fin|psh|urg) == fin|psh|urg drop
+
+        # Combinaciones inválidas de flags (SYN con FIN/RST)
+                tcp flags & (syn|fin) == syn|fin drop
+                tcp flags & (syn|rst) == syn|rst drop
+
+        # Escaneo ACK+FIN o FIN+ACK
+                tcp flags & (ack|fin) == ack|fin drop
+
+        # Escaneo Maimon: FIN activo con URG/PSH inactivos
+                tcp flags & (fin|psh|urg) == fin drop
+        }
+
+        chain forward {
+                type filter hook forward priority 0; policy drop;
+        }
+
+        chain output {
+                type filter hook output priority 0; policy accept;
+        }
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
     Explicación de las principales reglas:
 
      - flush ruleset: Limpia cualquier regla previa para evitar conflictos.
@@ -80,7 +96,7 @@ table inet filter {
 
         Una vez guardado el archivo, aplica la configuración ejecutando:
              - sudo nft -f /etc/nftables.conf
-
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
     3. Instalación y Configuración de Crowdsec
         Crowdsec es un sistema colaborativo que analiza logs en busca de comportamientos maliciosos y genera decisiones (por ejemplo, bloqueos) que se pueden aplicar automáticamente mediante un bouncer.
 
