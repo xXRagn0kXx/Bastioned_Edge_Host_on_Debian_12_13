@@ -55,8 +55,8 @@ table inet filter {
         # Permitir ICMP (ping) - solo echo-request y echo-reply
                 ip protocol icmp icmp type { echo-request, echo-reply } accept
 
-        # Permitir conexiones SSH (puerto 22) y limitar nuevas conexiones a 10 por minuto añadiendolas a un contador
-                tcp dport 22 ct state new limit rate 10/minute counter accept
+        # Permitir conexiones SSH (puerto 65065) y limitar nuevas conexiones a 10 por minuto añadiendolas a un contador
+                tcp dport 65065 ct state new limit rate 10/minute counter accept
 
         # Bloquear IPs que estén en la blocklist (actualizada por Crowdsec)
                 ip saddr @blocklist drop
@@ -82,11 +82,14 @@ table inet filter {
         # Escaneo Maimon: FIN activo con URG/PSH inactivos
                 tcp flags & (fin|psh|urg) == fin drop
 
-        # Protección contra paquetes inválidos
+        # Protección contra paquetes inválidos (ej. sin handshake TCP)
                 ct state invalid counter drop
 
         # Protección contra fragmentación sospechosa
         ip frag-off & 0x1fff != 0 counter drop
+
+        # Bloquear flags reservados (ECN/CWR activos sin negociación previa)
+         tcp flags & (ecn|cwr) != 0x0 drop comment "Flags reservados activos (RFC 3540)"
 
         # Límite global de nuevas conexiones (Opcional)
         # ct state new limit rate 30/second counter accept
@@ -104,6 +107,7 @@ table inet filter {
                 type filter hook output priority 0; policy accept;
         }
 }
+
 
 
 
