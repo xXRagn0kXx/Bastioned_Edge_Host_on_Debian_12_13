@@ -58,7 +58,8 @@ table inet filter {
         # Permitir conexiones SSH (puerto 65065) y limitar nuevas conexiones a 10 por minuto añadiendolas a un contador
                 tcp dport 65065 ct state new limit rate 10/minute counter accept
 
-        # Bloquear IPs que estén en la blocklist (actualizada por Crowdsec)
+
+       # Bloquear IPs que estén en la blocklist (actualizada por Crowdsec)
                 ip saddr @blocklist drop
                 ip6 saddr @blocklist6 drop
 
@@ -67,17 +68,19 @@ table inet filter {
                 tcp flags & (fin|syn|rst|psh|ack|urg) == 0x0 drop
 
         # Escaneo FIN: solo flag FIN activo
-                tcp flags & (fin|syn) == fin drop
+                tcp flags & (fin|syn) == fin drop comment "FIN scan"
 
         # Escaneo XMAS: FIN, PSH y URG activos
-                tcp flags & (fin|psh|urg) == fin|psh|urg drop
+                tcp flags & (fin|psh|urg) == fin|psh|urg drop comment "XMAS scan"
 
-        # Combinaciones inválidas de flags (SYN con FIN/RST)
-                tcp flags & (syn|fin) == syn|fin drop
-                tcp flags & (syn|rst) == syn|rst drop
+        # Combinaciones inválidas de flags (SYN con FIN)
+                tcp flags & (syn|fin) == syn|fin drop comment "SYN+FIN"
+
+        # Combinaciones inválidas de flags (SYN con RST)
+                tcp flags & (syn|rst) == syn|rst drop comment "SYN+RST"
 
         # Escaneo ACK+FIN o FIN+ACK
-                tcp flags & (ack|fin) == ack|fin drop
+                tcp flags & (ack|fin) == ack|fin drop comment "ACK|FIN + FYN|ACK scan"
 
         # Escaneo Maimon: FIN activo con URG/PSH inactivos
                 tcp flags & (fin|psh|urg) == fin drop
@@ -86,16 +89,41 @@ table inet filter {
                 ct state invalid counter drop
 
         # Protección contra fragmentación sospechosa
-        ip frag-off & 0x1fff != 0 counter drop
+                ip frag-off & 0x1fff != 0 counter drop
 
         # Bloquear flags reservados (ECN/CWR activos sin negociación previa)
-         tcp flags & (ecn|cwr) != 0x0 drop comment "Flags reservados activos (RFC 3540)"
+                tcp flags & (ecn|cwr) != 0x0 drop comment "Flags reservados activos (RFC 3540)"
+
+        # NULL scan: Paquetes con todos los flags desactivados (0x0).
+                tcp flags & (fin|syn|rst|psh|ack|urg) == 0x0 drop comment "NULL scan"
+
+        # Escaneo ACK: Usado para detectar reglas de firewall.
+                tcp flags ack tcp flags & (syn|fin|rst|urg|psh) == 0 drop comment "Bloquear escaneos ACK"
+
+        # Anti-fingerprinting
+                tcp option timestamp exists drop comment "Bloquear timestamp (OS detection)"
+                tcp option sack-perm exists drop comment "Bloquear SACK (manipulación de paquetes)"
+                tcp option md5sig exists drop comment "Evitar firmas MD5 (rare en escaneos)"
+                tcp option window exists drop comment "Bloquear opción Window Scale"
+                tcp option mss exists drop comment "Bloquear MSS para evitar fingerprinting"
+
+        #Bloquear escaneos Window basados en tamaño de ventana TCP
+                tcp flags ack tcp window <= 1024 drop comment "Bloquear escaneos Window"
+
+        # Bloquear paquetes con puerto fuente 0 (anómalo en escaneos o intentos de evasión)
+                tcp sport 0 drop comment "Bloquear paquetes con puerto fuente 0"
+
+        # Bloquear paquetes con puerto destino 0 (anómalo en escaneos o intentos de evasión)
+                tcp dport 0 drop comment "Bloquear paquetes con puerto destino 0"
+
+        #Protección extendida TCP
+                tcp option fastopen exists drop comment "Bloquear TCP Fast Open (RFC 7413)"
 
         # Límite global de nuevas conexiones (Opcional)
         # ct state new limit rate 30/second counter accept
 
         # Logging de paquetes bloqueados (opcional)
-        counter log prefix "Packet Blocked: " drop
+                counter log prefix " PAQUETE BLOQUEADO: " drop
 
         }
 
@@ -107,8 +135,6 @@ table inet filter {
                 type filter hook output priority 0; policy accept;
         }
 }
-
-
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
