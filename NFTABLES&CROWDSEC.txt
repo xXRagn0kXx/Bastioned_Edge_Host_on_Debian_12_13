@@ -201,7 +201,7 @@ table inet filter {
 
              - sudo   nano /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
 
-            En el apartado  ## nftables del fichero debemos modificar los valores table y chain con filter e input tal y como hemos puesto en el nonbre de la configuracion de nuestro /etc/nftables.conf
+            En el apartado  ## nftables del fichero debemos modificar los valores "table" y "chain" con "filter" e "input" tal y como hemos puesto en el nonbre de la configuracion de nuestro /etc/nftables.conf
 
 ## nftables
 nftables:
