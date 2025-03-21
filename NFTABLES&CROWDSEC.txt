@@ -168,7 +168,8 @@ table inet filter {
         Agregar el repositorio oficial de Crowdsec:
         Ejecuta el siguiente comando para instalar el script que configura el repositorio:
              - curl -s https://packagecloud.io/install/repositories/crowdsec/crowdsec/script.deb.sh | sudo bash
-
+            o bien
+             - curl -s https://install.crowdsec.net | sudo sh
         Instalar Crowdsec:
              - sudo apt install crowdsec
 
