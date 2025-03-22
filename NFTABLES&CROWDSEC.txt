@@ -1,4 +1,4 @@
-NMAP AND SSH PROTECTION ATTACKS USING NFTABLES AND CROWDSEC ON DEBIAN12
+    NMAP AND SSH PROTECTION ATTACKS USING NFTABLES AND CROWDSEC ON DEBIAN12
 
     1. Requisitos Previos
         - Sistema: Debian 12 actualizado.
@@ -169,9 +169,10 @@ table inet filter {
     3.1 Instalación de Crowdsec
         Agregar el repositorio oficial de Crowdsec:
         Ejecuta el siguiente comando para instalar el script que configura el repositorio:
-             - curl -s https://packagecloud.io/install/repositories/crowdsec/crowdsec/script.deb.sh | sudo bash
+             - curl -s https://install.crowdsec.net | sudo sh   
             o bien
-             - curl -s https://install.crowdsec.net | sudo sh
+             - curl -s https://packagecloud.io/install/repositories/crowdsec/crowdsec/script.deb.sh | sudo bash
+
         Instalar Crowdsec:
              - sudo apt install crowdsec
 
@@ -182,7 +183,7 @@ table inet filter {
         El bouncer es el componente que se encarga de aplicar las decisiones de Crowdsec en nftables, actualizando el conjunto dinámico blocklist.
 
         Instala el bouncer para nftables:
-            - sudo apt install crowdsec-firewall-bouncer-nftables
+             - sudo apt install crowdsec-firewall-bouncer-nftables
 
     3.3 Configuración de Escenarios y Fuentes de Logs
         Crowdsec trae escenarios preconfigurados para detectar ataques en SSH, fuerza bruta y otros vectores. Para instalar la colección de escenarios de Linux, ejecuta:
