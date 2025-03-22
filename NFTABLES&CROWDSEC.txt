@@ -195,16 +195,17 @@ table inet filter {
         Revisa los escenarios disponibles:
              - sudo cscli scenarios list
 
-        Tienes mas colecciones disponibles con:
+        Tienes mas colecciones adicionales disponibles con:
              - sudo cscli collections list -a
 
-    3.4    Integración con nftables:
-            El bouncer leerá las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizará automáticamente el conjunto blocklist definido en tu archivo de nftables. De esta forma, las IPs maliciosas quedarán bloqueadas durante el tiempo configurado (1 hora en este ejemplo).
-            Si deseas que CrowdSec actualice las listas en tu fichero de reglas personalizadas, debes modificar la configuración del bouncer para que apunte a la misma tabla y cadena donde se encuentran tus sets en el fichero /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+    3.4 Integración con nftables:
+        El bouncer leerá las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizará automáticamente el conjunto blocklist definido en tu archivo de nftables. De esta forma, las IPs maliciosas quedarán bloqueadas durante el tiempo configurado (1 hora en este ejemplo).
+        
+        Si deseas que CrowdSec actualice las listas en tu fichero de reglas personalizadas, debes modificar la configuración del bouncer para que apunte a la misma tabla y cadena donde se encuentran tus sets en el fichero /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
 
              - sudo   nano /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
 
-            En el apartado  ## nftables del fichero debemos modificar los valores "table" y "chain" con "filter" e "input" tal y como hemos puesto en el nonbre de la configuracion de nuestro /etc/nftables.conf
+        En el apartado  ## nftables del fichero debemos modificar los valores "table" y "chain" con "filter" e "input" tal y como hemos puesto en el nonbre de la configuracion de nuestro /etc/nftables.conf
 
 ## nftables
 nftables:
