@@ -25,6 +25,7 @@
         Crea o edita el archivo /etc/nftables.conf con el siguiente contenido:
              - sudo nano /etc/nftables.conf
 
+
 #!/usr/sbin/nft -f
 flush ruleset
 
@@ -65,8 +66,8 @@ table inet filter {
                 tcp dport 22 ct state new tcp flags syn limit rate 10/minute counter accept
 
         # Bloquear escaneos nmap comunes mediante combinaciones inusuales de flags TCP
-        # Escaneo NULL: todos los flags desactivados
-                tcp flags & (fin|syn|rst|psh|ack|urg) == 0x0 drop
+        # Escaneo NULL: todos los flags desactivados (0x0)
+                tcp flags & (fin|syn|rst|psh|ack|urg) == 0x0 drop comment "NULL scan"
 
         # Escaneo FIN: solo flag FIN activo
                 tcp flags & (fin|syn) == fin drop comment "FIN scan"
@@ -95,14 +96,11 @@ table inet filter {
         # Bloquear flags reservados (ECN/CWR activos sin negociación previa)
                 tcp flags & (ecn|cwr) != 0x0 drop comment "Flags reservados activos (RFC 3540)"
 
-        # NULL scan: Paquetes con todos los flags desactivados (0x0).
-                tcp flags & (fin|syn|rst|psh|ack|urg) == 0x0 drop comment "NULL scan"
-
         # Escaneo ACK: Usado para detectar reglas de firewall.
                 tcp flags ack tcp flags & (syn|fin|rst|urg|psh) == 0 drop comment "Bloquear escaneos ACK"
 
         # Anti-fingerprinting
-                tcp option timestamp exists drop comment "Bloquear timestamp (OS detection)"
+        #       tcp option timestamp exists drop comment "Bloquear timestamp (OS detection)"
                 tcp option sack-perm exists drop comment "Bloquear SACK (manipulación de paquetes)"
                 tcp option md5sig exists drop comment "Evitar firmas MD5 (rare en escaneos)"
                 tcp option window exists drop comment "Bloquear opción Window Scale"
