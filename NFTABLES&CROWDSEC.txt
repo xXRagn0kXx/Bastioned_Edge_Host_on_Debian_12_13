@@ -7,8 +7,7 @@
              - Conexión a Internet: Necesaria para descargar paquetes y actualizaciones.
              - Conocimientos básicos: Familiaridad con la terminal y edición de archivos de configuración.
 
-    2   Instalación y Configuración de nftables
-        
+    2   Instalación y Configuración de nftables        
     2.1 Instalación
         Actualiza el sistema e instala nftables con:
              - sudo apt update
@@ -20,7 +19,8 @@
              - sudo systemctl start nftables
 
     2.3 Configuración Avanzada
-        La siguiente configuración utiliza un conjunto dinámico llamado blocklist. Este conjunto almacenará las IPs que Crowdsec identifique como maliciosas. Además, se aplican reglas para limitar intentos de conexión en SSH y para bloquear patrones de escaneo típicos de herramientas como Nmap.
+        La siguiente configuración utiliza un conjunto dinámico llamado blocklist. Este conjunto almacenará las IPs que Crowdsec identifique como maliciosas.
+        Además, se aplican reglas para limitar intentos de conexión en SSH y para bloquear patrones de escaneo típicos de herramientas como Nmap.
 
         Crea o edita el archivo /etc/nftables.conf con el siguiente contenido:
              - sudo nano /etc/nftables.conf
@@ -34,14 +34,12 @@ table inet filter {
         set blocklist-ipv4 {
         type ipv4_addr
         flags dynamic, timeout
-        timeout 1h
         }
 
         # Conjunto dinámico para IPs bloqueadas (IPv6)
         set blocklist-ipv6 {
         type ipv6_addr
         flags dynamic, timeout
-        timeout 1h
         }
 
         chain input {
@@ -166,8 +164,8 @@ table inet filter {
 #########################################################################################################################################################################
 
     3    Instalación y Configuración de Crowdsec
-         Crowdsec es un sistema colaborativo que analiza logs en busca de comportamientos maliciosos y genera decisiones (por ejemplo, bloqueos) que se pueden aplicar automáticamente mediante un bouncer.
-
+         Crowdsec es un sistema colaborativo que analiza logs en busca de comportamientos maliciosos y genera decisiones (por ejemplo, bloqueos) 
+         que se pueden aplicar automáticamente mediante un bouncer.
     3.1 Instalación de Crowdsec
         Agregar el repositorio oficial de Crowdsec:
         Ejecuta el siguiente comando para instalar el script que configura el repositorio:
@@ -201,13 +199,16 @@ table inet filter {
              - sudo cscli collections list -a
 
     3.4 Integración con nftables:
-        El bouncer leerá las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizará automáticamente el conjunto blocklist definido en tu archivo de nftables. De esta forma, las IPs maliciosas quedarán bloqueadas durante el tiempo configurado (1 hora en este ejemplo).
+        El bouncer leerá las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizará automáticamente
+        el conjunto blocklist definido en tu archivo de nftables. De esta forma, las IPs maliciosas quedarán bloqueadas durante el tiempo configurado (1 hora en este ejemplo).
         
-        Si deseas que CrowdSec actualice las listas en tu fichero de reglas personalizadas, debes modificar la configuración del bouncer para que apunte a la misma tabla y cadena donde se encuentran tus sets en el fichero /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+        Si deseas que CrowdSec actualice las listas en tu fichero de reglas personalizadas, debes modificar la configuración del bouncer para que apunte a la misma tabla y cadena
+        donde se encuentran tus sets en el fichero /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
 
              - sudo   nano /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
 
-        En el apartado  ## nftables del fichero debemos modificar los valores "table" y "chain" con "filter" e "input" tal y como hemos puesto en el nonbre de la configuracion de nuestro /etc/nftables.conf
+        En el apartado  ## nftables del fichero debemos modificar los valores "table" y "chain" con "filter" e "input" tal y como hemos puesto
+        en el nonbre de la configuracion de nuestro /etc/nftables.conf
 
 ## nftables
 nftables:
@@ -236,7 +237,6 @@ nftables_hooks:
              - sudo systemctl restart crowdsec-firewall-bouncer-nftables
 
     4  Verificación y Monitorización
- 
     4.1 Verificar Reglas de nftables
         Para comprobar que las reglas están activas, utiliza:
              - sudo nft list ruleset
@@ -246,8 +246,8 @@ nftables_hooks:
              - sudo journalctl -u crowdsec
 
     4.3 Administrar decisiones
-    
         Las decisiones son las reglas que bloquaran o no el trafico desde las direcciones espeficificadas, para administrarlas teneomos las siguientes utilidades:
+
         Listar decisiones:
              - cscli decisions list
     
@@ -276,7 +276,6 @@ nftables_hooks:
         Esta visualización te mostrará las IPs actualmente bloqueadas junto con su tiempo restante.
 
     5   Consideraciones Finales
-    
     5.1 Ajustes según necesidades:
             Dependiendo del entorno y la cantidad de tráfico, es posible que debas ajustar los límites (por ejemplo, en la regla SSH) o las reglas de bloqueo para reducir falsos positivos.
 
@@ -293,6 +292,8 @@ nftables_hooks:
             - sudo cat /var/log/auth.log   
     
     6. Conclusión
-            Esta guía te proporciona una configuración avanzada de nftables con un conjunto dinámico que se integra con Crowdsec. Con esta solución, tu sistema Debian 12 estará protegido contra escaneos nmap y accesos SSH no autorizados, además de contar con una capa colaborativa de seguridad que bloquea automáticamente las IPs maliciosas.
+            Esta guía te proporciona una configuración avanzada de nftables con un conjunto dinámico que se integra con Crowdsec. 
+            Con esta solución, tu sistema Debian 12 estará protegido contra escaneos nmap y accesos SSH no autorizados,
+            además de contar con una capa colaborativa de seguridad que bloquea automáticamente las IPs maliciosas.
 
             Implementa y ajusta estas configuraciones según las características específicas de tu red para mantener una defensa proactiva y adaptativa.
