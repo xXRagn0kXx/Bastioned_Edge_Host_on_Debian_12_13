@@ -293,13 +293,19 @@ nftables_hooks:
     5.3 Monitorización constante:
             Revisa periódicamente los logs y las decisiones para afinar la configuración de seguridad según el comportamiento real de tu red.
             Los paquetes bloqueados apareceran como 2025-03-23T01:20:25.832745+01:00 Hostname kernel: [40387.495652]  [(PAQUETE BLOQUEADO)]: +  "las direcciones origen - destino"            
-            - sudo cat /var/log/kern.log
-            - sudo cat /var/log/syslog
+                 - sudo cat /var/log/kern.log
+                 - sudo cat /var/log/syslog
         
         Las conexiones que no consiga bloquear el firewall aparecen en:
-            - sudo cat /var/log/auth.log   
-    
-    6. Conclusión
+                 - sudo cat /var/log/auth.log   
+
+        Comprobar que CrowdSec envia metricas y no tiene errores:
+                 - sudo cat /var/log/crowdsec.log
+
+        Comprobar que el Bouncer Firewall de CrowdSec para nftables actualiza las decisiones de la base de datos de CrowdSec y no tiene errores:
+                 - sudo cat /var/log/crowdsec-firewall-bouncer.log
+
+    6   Conclusión
             Esta guía te proporciona una configuración avanzada de nftables con un conjunto dinámico que se integra con Crowdsec. 
             Con esta solución, tu sistema Debian 12 estará protegido contra escaneos nmap y accesos SSH no autorizados,
             además de contar con una capa colaborativa de seguridad que bloquea automáticamente las IPs maliciosas.
