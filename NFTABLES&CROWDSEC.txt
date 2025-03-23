@@ -272,8 +272,8 @@ nftables_hooks:
                  - sudo cscli decisions delete --range 162.142.125.0/24
 
     4.4 Monitorización de Bloqueos
-        El bouncer actualiza dinámicamente la blocklist. Puedes revisar esta lista con:
-                 - sudo nft list set inet filter blocklist
+        El bouncer actualiza dinámicamente la blacklist. Puedes revisar esta lista con:
+                 - sudo nft list ruleset
         Monitorear las decisiones tomadas: 
                  - sudo cscli decisions list
         Monitorear las alertas tomadas debido a decisiones:
