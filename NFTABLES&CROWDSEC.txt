@@ -209,15 +209,42 @@ table inet filter {
 
     3.4 Integración con nftables:
         El bouncer leerá las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizará automáticamente
-        el conjunto blocklist definido en tu archivo de nftables. De esta forma, las IPs maliciosas quedarán bloqueadas durante el tiempo configurado (1 hora en este ejemplo).
+        el conjunto blocklist definido en tu archivo de nftables. De esta forma, las IPs maliciosas quedarán bloqueadas durante el tiempo configurado por CrowdSec.
         
         Si deseas que CrowdSec actualice las listas en tu fichero de reglas personalizadas, debes modificar la configuración del bouncer para que apunte a la misma tabla y cadena
         donde se encuentran tus sets en el fichero /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
 
-             - sudo   nano /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+        En el apartado deny_log lo cambiaremos de "false" a "true" y mas abajo descomentamos deny_log_prefix y lo personalizamos con " [(CrowdSec BLOCK)]: "
 
-        En el apartado  ## nftables del fichero debemos modificar los valores "table" y "chain" con "filter" e "input" tal y como hemos puesto
-        en el nonbre de la configuracion de nuestro /etc/nftables.conf
+        En el apartado de blacklists es importante especificar los set de blacklists creadas para CrowdSec en nuestro /etc/nftables.conf (crowdsec-blacklist-ipv4 y crowdsec-blacklist-ipv6)
+        
+        En el apartado  ## nftables del fichero debemos modificar los valores "table" y "chain" con "filter" e "input" tal y como hemos puesto nuestro fichero /etc/nftables.conf ç
+        tanto para el apartado IPv4 como IPv6.
+
+                     - sudo   nano /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+
+
+log_mode: file
+log_dir: /var/log/
+log_level: info
+insecure_skip_verify: false
+disable_ipv6: false
+deny_action: DROP
+deny_log: true
+supported_decisions_types:
+  - ban
+#to change log prefix
+deny_log_prefix: " [(CrowdSec BLOCK)]: "
+#to change the blacklists name
+blacklists_ipv4: crowdsec-blacklist-ipv4
+blacklists_ipv6: crowdsec-blacklist-ipv6
+#type of ipset to use
+ipset_type: nethash
+#if present, insert rule in those chains
+iptables_chains:
+  - INPUT
+#  - FORWARD
+#  - DOCKER-USER
 
 ## nftables
 nftables:
@@ -237,6 +264,7 @@ nftables:
 nftables_hooks:
   - input
   - forward
+
 
 #########################################################################################################################################################################
 
