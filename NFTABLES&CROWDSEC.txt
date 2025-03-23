@@ -30,14 +30,14 @@ flush ruleset
 
 table inet filter {
 
-        # Conjunto dinámico para IPs bloqueadas, con timeout de 1 hora
-        set blocklist-ipv4 {
+        # Conjunto dinámico de IPs bloqueadas de CrowdSec (IPv4)
+        set crowdsec-blacklist-ipv4 {
         type ipv4_addr
         flags dynamic, timeout
         }
 
-        # Conjunto dinámico para IPs bloqueadas (IPv6)
-        set blocklist-ipv6 {
+        # Conjunto dinámico de IPs bloqueadas de CrowdSec (IPv6)
+        set crowdsec-blacklist-ipv6 {
         type ipv6_addr
         flags dynamic, timeout
         }
@@ -51,9 +51,9 @@ table inet filter {
         # Permitir tráfico en la interfaz local (loopback)
                 iifname "lo" accept
 
-       # Bloquear IPs que estén en la blocklist (actualizada por Crowdsec)
-                ip saddr @blocklist-ipv4 drop
-                ip6 saddr @blocklist-ipv6 drop
+       # Bloquear IPs que estén en la blacklist (actualizada por Crowdsec)
+                ip saddr @crowdsec-blacklist-ipv4 drop
+                ip6 saddr @crowdsec-blacklist-ipv6 drop
 
         # Permitir ICMP (ping) - solo echo-request y echo-reply
                 ip protocol icmp icmp type { echo-request, echo-reply } accept
@@ -138,6 +138,7 @@ table inet filter {
 }
 
 
+
 #########################################################################################################################################################################
     Explicación de las principales reglas:
 
@@ -150,8 +151,8 @@ table inet filter {
      - iifname "lo" accept: Se permite el tráfico de la interfaz loopback.
      - ICMP: Se permite el ping (echo-request y echo-reply).
      - SSH con limitación: Solo se aceptan hasta 10 nuevas conexiones por minuto al puerto 22, ayudando a mitigar ataques de fuerza bruta.
-     - ip saddr @blocklist-ipv4 drop: Bloquea el tráfico proveniente de IPs version 4 presentes en la lista dinámica de CrowdSec.
-     - ip saddr @blocklist-ipv6 drop: Bloquea el tráfico proveniente de IPs version 6 presentes en la lista dinámica de CrowdSec.
+     - ip saddr @crowdsec-blacklist-ipv4 drop: Bloquea el tráfico proveniente de IPs version 4 presentes en la lista dinámica de CrowdSec.
+     - ip saddr @crowdsec-blacklist-ipv6 drop: Bloquea el tráfico proveniente de IPs version 6 presentes en la lista dinámica de CrowdSec.
      - Bloqueo de escaneos nmap: Se aplican reglas para descartar paquetes con combinaciones de flags consideradas anómalas (características de ciertos escaneos).
      - chain forward: Esta cadena contrendra las reglas de reenvio de trafico en la maquina, por defecto todo deshabilitado.
      - chain output: Esta cadena contrendra las reglas de salida de trafico en la maquina, por defecto todo el trafico saliente habilitado.
@@ -274,6 +275,8 @@ nftables_hooks:
     4.4 Monitorización de Bloqueos
         El bouncer actualiza dinámicamente la blacklist. Puedes revisar esta lista con:
                  - sudo nft list ruleset
+        Tambien puedes revisar los sets especificos que CrowdSec crea con:
+                 - sudo nft list set inet filter "nombre del set"
         Monitorear las decisiones tomadas: 
                  - sudo cscli decisions list
         Monitorear las alertas tomadas debido a decisiones:
