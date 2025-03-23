@@ -266,7 +266,7 @@ nftables_hooks:
     4.4 Monitorización de Bloqueos
         El bouncer actualiza dinámicamente la blocklist. Puedes revisar esta lista con:
                  - sudo nft list set inet filter blocklist
-        Monitorear las desiones tomadas: 
+        Monitorear las decisiones tomadas: 
                  - sudo cscli decisions list
         Monitorear las alertas tomadas debido a decisiones:
                  - sudo cscli alerts list
