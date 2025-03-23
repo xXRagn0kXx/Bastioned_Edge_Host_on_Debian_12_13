@@ -1,12 +1,13 @@
-    NMAP AND SSH PROTECTION ATTACKS USING NFTABLES AND CROWDSEC ON DEBIAN12
-
-      1. Requisitos Previos
+#################################################################################
+#    NMAP AND SSH PROTECTION ATTACKS USING NFTABLES AND CROWDSEC ON DEBIAN12    #
+#################################################################################
+    1   Requisitos Previos
              - Sistema: Debian 12 actualizado.
              - Privilegios: Acceso con usuario root o mediante sudo.
              - Conexión a Internet: Necesaria para descargar paquetes y actualizaciones.
              - Conocimientos básicos: Familiaridad con la terminal y edición de archivos de configuración.
 
-      2. Instalación y Configuración de nftables
+    2   Instalación y Configuración de nftables
         
     2.1 Instalación
         Actualiza el sistema e instala nftables con:
@@ -30,14 +31,14 @@ flush ruleset
 table inet filter {
 
         # Conjunto dinámico para IPs bloqueadas, con timeout de 1 hora
-        set blocklist {
+        set blocklist-ipv4 {
         type ipv4_addr
         flags dynamic, timeout
         timeout 1h
         }
 
         # Conjunto dinámico para IPs bloqueadas (IPv6)
-        set blocklist6 {
+        set blocklist-ipv6 {
         type ipv6_addr
         flags dynamic, timeout
         timeout 1h
@@ -52,6 +53,10 @@ table inet filter {
         # Permitir tráfico en la interfaz local (loopback)
                 iifname "lo" accept
 
+       # Bloquear IPs que estén en la blocklist (actualizada por Crowdsec)
+                ip saddr @blocklist-ipv4 drop
+                ip6 saddr @blocklist-ipv6 drop
+
         # Permitir ICMP (ping) - solo echo-request y echo-reply
                 ip protocol icmp icmp type { echo-request, echo-reply } accept
 
@@ -60,10 +65,6 @@ table inet filter {
 
         # Permitir conexiones aolo SSH (puerto 22) y limitar nuevas conexiones a 10 por minuto añadiendolas a un contador
                 tcp dport 22 ct state new tcp flags syn limit rate 10/minute counter accept
-
-       # Bloquear IPs que estén en la blocklist (actualizada por Crowdsec)
-                ip saddr @blocklist drop
-                ip6 saddr @blocklist6 drop
 
         # Bloquear escaneos nmap comunes mediante combinaciones inusuales de flags TCP
         # Escaneo NULL: todos los flags desactivados
@@ -139,7 +140,7 @@ table inet filter {
 }
 
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#########################################################################################################################################################################
     Explicación de las principales reglas:
 
      - flush ruleset: Limpia cualquier regla previa para evitar conflictos.
@@ -160,10 +161,11 @@ table inet filter {
         Comprobamos el servicio
              - sudo systemctl status nftables.service
 
-    Si todo esta ok hemos completado el nucleo de defensa del Nmap
+        Si todo esta ok hemos completado el nucleo de defensa del Nmap
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-      3. Instalación y Configuración de Crowdsec
+#########################################################################################################################################################################
+
+    3    Instalación y Configuración de Crowdsec
          Crowdsec es un sistema colaborativo que analiza logs en busca de comportamientos maliciosos y genera decisiones (por ejemplo, bloqueos) que se pueden aplicar automáticamente mediante un bouncer.
 
     3.1 Instalación de Crowdsec
@@ -226,14 +228,14 @@ nftables_hooks:
   - input
   - forward
 
-------------------------------------------------------------------------------------------------------------------------------------------
+#########################################################################################################################################################################
 
     3.5 Reiniciar Servicios
         Para asegurarte de que todos los cambios se apliquen, reinicia los servicios de Crowdsec y del bouncer:
              - sudo systemctl restart crowdsec
              - sudo systemctl restart crowdsec-firewall-bouncer-nftables
 
-    4. Verificación y Monitorización
+    4  Verificación y Monitorización
  
     4.1 Verificar Reglas de nftables
         Para comprobar que las reglas están activas, utiliza:
@@ -250,17 +252,15 @@ nftables_hooks:
              - cscli decisions list
     
         Añadir decisiones:
-            individual (no recomended, use nftables por eficient resources on linux)
+             Individual (no recomended, use nftables por eficient resources on linux)
                  - sudo cscli decisions add --ip 192.168.1.1 --duration 87600h --reason "web bruteforce"
-            Rango
+             Rango
                  - sudo cscli decisions add --ip cscli decisions add --range 162.142.125.0/24 --duration 87600h --reason "Ataques SSH de Cersys" 109.205.213.99 --duration 0 --reason "Ataque SSH"
 
         Borrar decisiones:
-            individual
-            delete the decision on IP address 162.142.125.50
+             Individual (Borrado de la decision con IP address 162.142.125.50)
                  - sudo cscli decisions delete --ip 162.142.125.50
-            rango
-            delete the decision on IP range 162.142.125.0/24
+             Rango (Borrado de decisiones con IP rango 162.142.125.0/24)
                  - sudo cscli decisions delete --range 162.142.125.0/24
 
     4.4 Monitorización de Bloqueos
@@ -275,14 +275,15 @@ nftables_hooks:
         
         Esta visualización te mostrará las IPs actualmente bloqueadas junto con su tiempo restante.
 
-    5. Consideraciones Finales
-        Ajustes según necesidades:
+    5   Consideraciones Finales
+    
+    5.1 Ajustes según necesidades:
             Dependiendo del entorno y la cantidad de tráfico, es posible que debas ajustar los límites (por ejemplo, en la regla SSH) o las reglas de bloqueo para reducir falsos positivos.
 
-        Actualización de escenarios:
+    5.2 Actualización de escenarios:
             Mantén actualizada la colección de escenarios de Crowdsec para beneficiarte de las últimas reglas y detecciones.
 
-        Monitorización constante:
+    5.3 Monitorización constante:
             Revisa periódicamente los logs y las decisiones para afinar la configuración de seguridad según el comportamiento real de tu red.
             Los paquetes bloqueados apareceran como 2025-03-23T01:20:25.832745+01:00 Hostname kernel: [40387.495652]  [(PAQUETE BLOQUEADO)]: +  "las direcciones origen - destino"            
             - sudo cat /var/log/kern.log
