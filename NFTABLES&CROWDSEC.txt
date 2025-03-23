@@ -150,22 +150,24 @@ table inet filter {
      - ip saddr @blocklist drop: Bloquea el tráfico proveniente de IPs presentes en la lista dinámica.
      - Bloqueo de escaneos nmap: Se aplican reglas para descartar paquetes con combinaciones de flags consideradas anómalas (características de ciertos escaneos).
 
-        Una vez guardado el archivo, aplica la configuración ejecutando:
+        (IMPORTANTE) Una vez guardado el archivo, revisa la configuración ejecutando:
              - sudo nft -f /etc/nftables.conf
-        
+        Si el comando no duelve nada el fichero esta correcto
+
         Reiniciamos el servicio para aplicar los cambios
              -  sudo systemctl restart nftables.service
         
         Comprobamos el servicio
              - sudo systemctl status nftables.service
 
-        Si todo esta ok hemos completado el nucleo de defensa del Nmap
+        Si todo esta ok hasta aqui hemos creado el nucleo de nuestro Firewall, ahora vamos a hacerlo un poco mas inteligente con reconomiento por reputacion.
 
 #########################################################################################################################################################################
 
     3    Instalación y Configuración de Crowdsec
          Crowdsec es un sistema colaborativo que analiza logs en busca de comportamientos maliciosos y genera decisiones (por ejemplo, bloqueos) 
          que se pueden aplicar automáticamente mediante un bouncer.
+
     3.1 Instalación de Crowdsec
         Agregar el repositorio oficial de Crowdsec:
         Ejecuta el siguiente comando para instalar el script que configura el repositorio:
