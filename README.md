@@ -1,5 +1,5 @@
 # Protect_SSH-Nmap_using_CrowdSec-NFtables_Debian12
 
  - Firewall security SSH and NMAP on Debian 12
-![Portada de DebMirror](DebMirror_Portada.png)
+![Portada de Firewall](Crowdsec_Portada.png)
 Guide in NFTABLES&CROWDSEC.txt
