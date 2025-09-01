@@ -1,8 +1,8 @@
 #################################################################################
-#    NMAP AND SSH PROTECTION ATTACKS USING NFTABLES AND CROWDSEC ON DEBIAN12    #
+#    NMAP AND SSH PROTECTION ATTACKS USING NFTABLES AND CROWDSEC ON DEBIAN13    #
 #################################################################################
     1   Requisitos Previos
-             - Sistema: Debian 12 actualizado.
+             - Sistema: Debian 13 actualizado.
              - Privilegios: Acceso con usuario root o mediante sudo.
              - Conexión a Internet: Necesaria para descargar paquetes y actualizaciones.
              - Conocimientos básicos: Familiaridad con la terminal y edición de archivos de configuración.
@@ -336,7 +336,8 @@ nftables_hooks:
 
     6   Conclusión
             Esta guía te proporciona una configuración avanzada de nftables con un conjunto dinámico que se integra con Crowdsec. 
-            Con esta solución, tu sistema Debian 12 estará protegido contra escaneos nmap y accesos SSH no autorizados,
+            Con esta solución, tu sistema Debian 13 estará protegido contra escaneos nmap y accesos SSH no autorizados,
             además de contar con una capa colaborativa de seguridad que bloquea automáticamente las IPs maliciosas.
 
             Implementa y ajusta estas configuraciones según las características específicas de tu red para mantener una defensa proactiva y adaptativa.
+
