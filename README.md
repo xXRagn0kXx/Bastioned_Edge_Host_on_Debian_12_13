@@ -224,7 +224,7 @@ table inet filter {
 
 
    :warning: (IMPORTANTE) Una vez guardado el archivo, revisa la configuracion ejecutando:
-   
+
    ```bash
    sudo nft -f /etc/nftables.conf
    ```
@@ -352,11 +352,11 @@ sudo journalctl -u crowdsec
 Las decisiones son las reglas que bloquaran o no el trafico desde las direcciones espeficificadas, para administrarlas tenemos las siguientes utilidades.
 
 ### 4.3.1 Agregar decisiones
-Individual: (no recomended, use nftables por eficient resources on linux)
+Individual: (No recomendedado, muchas entradas hacen el programa menos eficiente)
 ```bash
 sudo cscli decisions add --ip 192.168.1.1 --duration 87600h --reason "web bruteforce"
 ```
-Rango:
+Rango: (Ejemplo para la red 162.142.125.0/24)
 ```bash 
 sudo cscli decisions add --ip cscli decisions add --range 162.142.125.0/24 --duration 87600h --reason "Ataques SSH de Cersys" 109.205.213.99 --duration 0 --reason "Ataque SSH"
 ```
