@@ -383,6 +383,7 @@ Crowdsec recopila estadisticas del trafico bloqueado por nuestra maquina.
 Esto nos permite ver que desiones estan rechazando ataques y cuanta cantidad.
 
 Para ver todas las metricas
+
 ```bash
 cscli metrics
 ```
@@ -394,18 +395,25 @@ cscli metrics  show bouncers
 
 El bouncer actualiza dinamicamente la blacklistdel nftables.
 Puedes revisar esta lista con:
+
 ```bash
  sudo nft list ruleset
 ```
-        Tambien puedes revisar los sets especificos que CrowdSec crea con: 
+
+Tambien puedes revisar los sets especificos que CrowdSec crea con: 
+
 ```bash 
  sudo nft list set inet filter "nombre del set"
 ```
-        Monitorear las decisiones tomadas: 
+
+Monitorear las decisiones tomadas: 
+
 ```bash
 sudo cscli decisions list
 ```
-        Monitorear las alertas tomadas debido a decisiones:
+
+Monitorear las alertas tomadas debido a decisiones:
+
 ```bash 
  sudo cscli alerts list
 ```
