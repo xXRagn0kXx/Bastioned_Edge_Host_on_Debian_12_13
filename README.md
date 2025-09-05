@@ -414,13 +414,15 @@ sudo cscli decisions list
 
  Revisa periodicamente los logs y las decisiones para afinar la configuracion de seguridad segun el comportamiento real de tu red.
 
-Los paquetes bloqueados apareceran como 2025-03-23T01:20:25.832745+01:00 Hostname kernel: [40387.495652]  [(PAQUETE BLOQUEADO)]: +  "las direcciones origen - destino"            
+Los paquetes bloqueados apareceran como 2025-03-23T01:20:25.832745+01:00 Hostname kernel: [40387.495652]  [(PAQUETE BLOQUEADO)]: +  "las direcciones origen - destino"
+
 ```bash 
 sudo cat /var/log/kern.log
 sudo cat /var/log/syslog
 ```    
       
         Las conexiones que no consiga bloquear el firewall aparecen en:
+
 ```bash 
 sudo cat /var/log/auth.log   
 ```
@@ -431,7 +433,9 @@ sudo cat /var/log/crowdsec.log
 ``` 
       
         Comprobar que el Bouncer Firewall de CrowdSec para nftables actualiza las decisiones de la base de datos de CrowdSec y no tiene errores:
+
 ```bash 
 sudo cat /var/log/crowdsec-firewall-bouncer.log
 ```
+
 Implementa y ajusta estas configuraciones segun las caracteristicas especificas de tu red para mantener una defensa proactiva y adaptativa.
