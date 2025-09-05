@@ -61,7 +61,9 @@ sudo apt install nftables crowdsec crowdsec-firewall-bouncer-nftables
 
 El sistema de firewall nftables se configura creando un archivo que organiza las reglas en una jerarquia clara. 
 
-En la cima estan las tablas, que actuan como contenedores logicos para las reglas, como la tabla filter para el filtrado de paquetes. Dentro de cada tabla se definen cadenas, que son listas ordenadas de reglas. 
+En la cima estan las tablas, que actuan como contenedores logicos para las reglas, como la tabla filter para el filtrado de paquetes.
+
+Dentro de cada tabla se definen cadenas, que son listas ordenadas de reglas. 
 
 Las cadenas base son puntos de entrada para el trafico de red, vinculadas a puntos especificos del kernel (hooks) como input (para el trafico entrante), output (para el saliente) y forward (para el trafico que atraviesa el sistema). 
 
