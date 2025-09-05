@@ -15,3 +15,12 @@ En esta guia aprenderemos a bastionar un equipo con acceso desde internet para u
 * Como apoyo al firewall usaremos la herrmienta CrowdSec basada en reputacion
 * Esto permite usar el host como VPN  de forma mas confiable
 
+## :white_check_mark: Requisitos
+
+* Conocimiento medio o avanzado del sistema
+* Conocimiento medio o avanzado de reglas
+* Un servidor o maquina con Debian 12 o 13 con conexion a internet
+* Permisos de sudo o usuario root para cambios
+
+---
+
