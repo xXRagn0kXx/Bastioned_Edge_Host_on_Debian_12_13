@@ -96,7 +96,7 @@ Este es un conjunto de reglas recopilado para intentar aplicar la seguridad posi
 ```bash
 nano /etc/nftables.conf
 ```
-:warning: Recuerda reemplazar las direcciones de red y puertos que necesites para tu entorno.
+:warning: Recuerda reemplazar las direcciones de red, puertos y comentar lo que no necesites para tu entorno.
 
 ```bash
 flush ruleset
@@ -294,6 +294,7 @@ En el apartado de blacklists es importante especificar los set de blacklists cre
         
 En el apartado  ## nftables del fichero debemos modificar los valores "table" y "chain" con "filter" e "input" tal y como hemos puesto nuestro fichero /etc/nftables.conf tanto para el apartado IPv4 como IPv6.
 
+Editamos:
  ```bash
 sudo   nano /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
  ```
