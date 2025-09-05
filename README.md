@@ -17,7 +17,7 @@ Ademas de contar con una capa colaborativa de seguridad que bloquea automaticame
 
 ## :book: Indice
 
-* [ :cop: Terminos de uso](README.md)
+* [ :cop: Terminos de uso](./LICENSE)
 * [:atom: Caracteristicas](#atom-caracteristicas)
 * [:white_check_mark: Requisitos](#white_check_mark-requisitos)
 * [:gear: 1 Instalar el software necesario](#gear-1-instalar-el-software-necesario)
