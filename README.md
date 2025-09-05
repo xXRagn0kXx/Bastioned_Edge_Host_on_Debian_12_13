@@ -300,8 +300,9 @@ INFO Please restart crowdsec after accepting the enrollment.
  ```
 Nos indica que tenemos que aceptarlo en la pagina de antes para confirmarlo.
 
-Actualizamos o vamos de nuevo a https://app.crowdsec.net/security-engines y apareceremos en la subpestaña Engines donde nos mostrara el boton morado de "Accept Enroll", 
-¡¡Fecidades!!una vez confirmado ya estaria la vinculacion.
+Actualizamos la pagina web o vamos de nuevo a https://app.crowdsec.net/security-engines, 
+nos apareceremos en la subpestaña Engines donde nos mostrara el boton morado de "Accept Enroll", 
+¡¡Fecidades!!una vez confirmado ya estaria la vinculacion por fin.
 
 :warning: El comando "cscli console enroll -e" que usaste antes puedes ustilizarlo tambien en mas maquinas que tengas y tan solo tendrias que aceptar el enroll en la pagina web.
 
