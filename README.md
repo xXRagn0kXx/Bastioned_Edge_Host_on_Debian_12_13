@@ -240,9 +240,11 @@ Esta posee una base de datos de amenazas centralizada, CrowdSec analiza logs en 
 Esto nos permite quitarnos un grueso malicioso de IPs o de rangos sospechosos que estan recorriendo la red constantemente.
 
 ## 3.1 Escenarios de CrowdSec
-Los "escenarios" son las reglas de deteccion que utiliza el agente, mientras que el "bouncer" es el componente que se encarga de la accion de bloqueo. Por lo tanto, no son lo mismo; son dos partes clave de un sistema de seguridad que trabajan juntas.
+Los "escenarios" son las reglas de deteccion que utiliza el agente, mientras que el "bouncer" es el componente que se encarga de la accion de bloqueo. 
 
-Esto permite que solo busque y analice lo que nos interesa, haciendolo mas eficiente y granular.
+Por lo tanto son dos partes clave de un sistema de seguridad que trabajan juntas.
+
+Esto permite que solo busque y analice lo que nos interesa, haciendolo mas eficiente y modular.
 
 En resumen:
 CrowdSec Agent (LSO): Detecta ataques basandose en escenarios.
