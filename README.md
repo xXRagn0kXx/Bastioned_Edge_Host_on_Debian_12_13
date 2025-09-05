@@ -67,6 +67,9 @@ Creamos o editamos el archivo
 ```bash
 nano /etc/nftables.conf
 ```
+Este es un conjunto de reglas recopilado para intentar aplicar la seguridad posible sin restar rendimiento, siempre puede ser mejorable y mas restrictivo, esto solo es un grueso de trabajo ya hecho por mi.
+
+:warning: Recuerda reemplazar las direcciones de red y puertos que necesites para tu entorno.
 
 ```bash
 flush ruleset
