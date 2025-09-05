@@ -52,7 +52,7 @@ sudo apt install nftables crowdsec crowdsec-firewall-bouncer-nftables
 # :lock: 2 Configurar Nftables
 
 
-El sistema de firewall nftables se configura a creando un archivo que organiza las reglas en una jerarquía clara. 
+El sistema de firewall nftables se configura creando un archivo que organiza las reglas en una jerarquía clara. 
 
 En la cima están las tablas, que actúan como contenedores lógicos para las reglas, como la tabla filter para el filtrado de paquetes. Dentro de cada tabla se definen cadenas, que son listas ordenadas de reglas. 
 
@@ -62,7 +62,7 @@ También puedes crear cadenas regulares personalizadas para organizar las reglas
 
 Finalmente, las reglas son las instrucciones que se ejecutan sobre un paquete que coincide con ciertas condiciones, con acciones como accept, drop o jump (saltar a otra cadena).
 
-## 2.1 Creamos el archivo de nftables
+## 2.1 Crear el archivo de nftables
 
 Este es un conjunto de reglas recopilado para intentar aplicar la seguridad posible sin restar rendimiento, siempre puede ser mejorable y mas restrictivo, esto solo es un grueso de trabajo ya hecho por mi.
 
@@ -196,3 +196,64 @@ table inet filter {
         }
 }
 ```
+
+ :clipboard: Explicacion de las principales reglas:
+
+     * flush ruleset: Limpia cualquier regla previa para evitar conflictos.
+     * table intet filter: Tabla pricipal que contendra toda la escructura y las cadenas mas con los conjuntos de nuestro nftables
+     * blocklist-ipv4: Define un conjunto dinámico de IPs version 4 que se bloquearán automáticamente durante el tiempo que estime CrowdSec.
+     * blocklist-ipv6: Define un conjunto dinámico de IPs version 6 que se bloquearán automáticamente durante el tiempo que estime CrowdSec.
+     * chain input: Cadena  que contendra todas las reglas de entrada a nuestra maquina.
+     * ct state established,related accept: Permite tráfico de conexiones ya establecidas o relacionadas.
+     * iifname "lo" accept: Se permite el tráfico de la interfaz loopback.
+     * ICMP: Se permite el ping (echo-request y echo-reply).
+     * SSH con limitación: Solo se aceptan hasta 10 nuevas conexiones por minuto al puerto 22, ayudando a mitigar ataques de fuerza bruta.
+     * ip saddr @crowdsec-blacklist-ipv4 drop: Bloquea el tráfico proveniente de IPs version 4 presentes en la lista dinámica de CrowdSec.
+     * ip saddr @crowdsec-blacklist-ipv6 drop: Bloquea el tráfico proveniente de IPs version 6 presentes en la lista dinámica de CrowdSec.
+     * Bloqueo de escaneos nmap: Se aplican reglas para descartar paquetes con combinaciones de flags consideradas anómalas (características de ciertos escaneos).
+     * chain forward: Esta cadena contrendra las reglas de reenvio de trafico en la maquina, por defecto todo deshabilitado.
+     * chain output: Esta cadena contrendra las reglas de salida de trafico en la maquina, por defecto todo el trafico saliente habilitado.
+        
+   :warning: (IMPORTANTE) Una vez guardado el archivo, revisa la configuración ejecutando:
+
+   ```bash
+   sudo nft -f /etc/nftables.conf
+   ```
+
+:white_check_mark: Si el comando no duelve nada el fichero esta correcto.
+
+---
+
+
+### 3 Configuración de Crowdsec
+
+Crowdsec es una herramienta empresarial con modelo gratutito colaborativo.
+
+Esta posee una base de datos de amenazas centralizada, CrowdSec analiza logs en busca de comportamientos maliciosos y genera alertas que se envian a esta base de datos centralizada (por ejemplo, intentos de acceso no autorizado) cuando la base de datos recibe la alerta de varios hosts añade esa ip o rango a la blacklist de la base de datos.
+
+Esto nos permite quitarnos un grueso malicioso de IPs o de rangos sospechosos que estan recorriendo la red constantemente.
+
+3.1 Escenarios de CrowdSec
+En CrowdSec los escenarios son politicas establecidas para activar rastreos de amenazas.
+
+Esto permite que solo busque y analice lo que nos interesa, haciendolo mas eficiente y granular.
+
+
+
+En nuestro caso como usamos Debian y tenemos SSH en la maquina instalamos:
+
+ ```bash
+sudo cscli collections install crowdsecurity/linux
+sudo cscli collections install crowdsecurity/sshd
+```
+
+:white_check_mark: Si nos inidica "Nothing to install or remove" ya estaran instaladas.
+
+Comprobamos con:
+
+ ```bash
+cscli scenarios list
+```
+
+---
+
