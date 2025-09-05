@@ -284,7 +284,7 @@ Install your first Security Engine with Attack Scenarios to see live attacks det
 
 *Entramos al boton morado* "Install Security Engine"
 
- En ese mismo apartado vendra el comando a ejecutar en nuestra maquina
+ En ese mismo apartado vendra el comando a ejecutar en nuestra maquina linux, algo tipo:
  ```bash
  cscli console enroll -e context cm274sg54b012ffs0eq23sadabds9wkzumhp
 ```
