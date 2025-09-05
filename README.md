@@ -44,12 +44,12 @@ curl -s https://packagecloud.io/install/repositories/crowdsec/crowdsec/script.de
 
 Una vez agregado (o no) procedemos a la instalacion
 
-Actualizar la lista de paquetes disponibles
+Actualizar la lista de paquetes disponibles:
 ```bash
 sudo apt update
 ```
 
-Instalamos el software
+Instalamos el software:
 
 ```bash
 sudo apt install nftables crowdsec crowdsec-firewall-bouncer-nftables
@@ -299,7 +299,7 @@ sudo   nano /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
  ```
 
  Deberia quedar algo como esto:
-  ```bash
+  ```yaml
 log_mode: file
 log_dir: /var/log/
 log_level: info
@@ -377,7 +377,7 @@ sudo cscli decisions add --ip cscli decisions add --range 162.142.125.0/24 --dur
 ```
 
 ### 4.3.2 Eliminar decisiones
-Individual (Ejemplo de Borrado de la decision con IP address 162.142.125.50)
+Individual: (Ejemplo de Borrado de la decision con IP address 162.142.125.50)
 ```bash
 sudo cscli decisions delete --ip 162.142.125.50
 ```
@@ -396,13 +396,13 @@ Crowdsec recopila estadisticas del trafico bloqueado por nuestra maquina.
 
 Esto nos permite ver que desiones estan rechazando ataques y cuanta cantidad.
 
-Para ver todas las metricas
+Para ver todas las metricas:
 
 ```bash
 cscli metrics
 ```
 
-Para comparar los paquetes bloqueados por nosotros vs CrowdSec
+Para comparar los paquetes bloqueados por nosotros vs CrowdSec:
 ```bash
 cscli metrics  show bouncers
 ```
