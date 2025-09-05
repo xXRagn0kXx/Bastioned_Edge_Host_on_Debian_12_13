@@ -68,21 +68,21 @@ Este es un conjunto de reglas recopilado para intentar aplicar la seguridad posi
 
  :clipboard: Explicacion de las principales reglas:
 
-     * flush ruleset: Limpia cualquier regla previa para evitar conflictos.
-     * table intet filter: Tabla pricipal que contendra toda la escructura y las cadenas mas con los conjuntos de nuestro nftables
-     * blocklist-ipv4: Define un conjunto dinámico de IPs version 4 que se bloquearán automáticamente durante el tiempo que estime CrowdSec.
-     * blocklist-ipv6: Define un conjunto dinámico de IPs version 6 que se bloquearán automáticamente durante el tiempo que estime CrowdSec.
-     * chain input: Cadena  que contendra todas las reglas de entrada a nuestra maquina.
-     * ct state established,related accept: Permite tráfico de conexiones ya establecidas o relacionadas.
-     * iifname "lo" accept: Se permite el tráfico de la interfaz loopback.
-     * ICMP: Se permite el ping (echo-request y echo-reply).
-     * SSH con limitación: Solo se aceptan hasta 10 nuevas conexiones por minuto al puerto 22, ayudando a mitigar ataques de fuerza bruta.
-     * ip saddr @crowdsec-blacklist-ipv4 drop: Bloquea el tráfico proveniente de IPs version 4 presentes en la lista dinámica de CrowdSec.
-     * ip saddr @crowdsec-blacklist-ipv6 drop: Bloquea el tráfico proveniente de IPs version 6 presentes en la lista dinámica de CrowdSec.
-     * Bloqueo de escaneos nmap: Se aplican reglas para descartar paquetes con combinaciones de flags consideradas anómalas (características de ciertos escaneos).
-     * chain forward: Esta cadena contrendra las reglas de reenvio de trafico en la maquina, por defecto todo deshabilitado.
-     * chain output: Esta cadena contrendra las reglas de salida de trafico en la maquina, por defecto todo el trafico saliente habilitado.
-     
+* flush ruleset: Limpia cualquier regla previa para evitar conflictos.
+* table intet filter: Tabla pricipal que contendra toda la escructura y las cadenas mas con los conjuntos de nuestro nftables
+* blocklist-ipv4: Define un conjunto dinámico de IPs version 4 que se bloquearán automáticamente durante el tiempo que estime CrowdSec.
+* blocklist-ipv6: Define un conjunto dinámico de IPs version 6 que se bloquearán automáticamente durante el tiempo que estime CrowdSec.
+* chain input: Cadena  que contendra todas las reglas de entrada a nuestra maquina.
+* ct state established,related accept: Permite tráfico de conexiones ya establecidas o relacionadas.
+* iifname "lo" accept: Se permite el tráfico de la interfaz loopback.
+* ICMP: Se permite el ping (echo-request y echo-reply).
+* SSH con limitación: Solo se aceptan hasta 10 nuevas conexiones por minuto al puerto 22, ayudando a mitigar ataques de fuerza bruta.
+* ip saddr @crowdsec-blacklist-ipv4 drop: Bloquea el tráfico proveniente de IPs version 4 presentes en la lista dinámica de CrowdSec.
+* ip saddr @crowdsec-blacklist-ipv6 drop: Bloquea el tráfico proveniente de IPs version 6 presentes en la lista dinámica de CrowdSec.
+* Bloqueo de escaneos nmap: Se aplican reglas para descartar paquetes con combinaciones de flags consideradas anómalas (características de ciertos escaneos).
+* chain forward: Esta cadena contrendra las reglas de reenvio de trafico en la maquina, por defecto todo deshabilitado.
+* chain output: Esta cadena contrendra las reglas de salida de trafico en la maquina, por defecto todo el trafico saliente habilitado.
+
 
 ```bash
 nano /etc/nftables.conf
