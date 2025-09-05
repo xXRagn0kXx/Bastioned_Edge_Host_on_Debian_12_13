@@ -345,3 +345,83 @@ sudo journalctl -u crowdsec
 ## 4.3 Administrar decisiones
 Las decisiones son las reglas que bloquaran o no el trafico desde las direcciones espeficificadas, para administrarlas tenemos las siguientes utilidades.
 
+### 4.3.1 Agregar decisiones
+Individual: (no recomended, use nftables por eficient resources on linux)
+```bash
+sudo cscli decisions add --ip 192.168.1.1 --duration 87600h --reason "web bruteforce"
+```
+Rango:
+```bash 
+sudo cscli decisions add --ip cscli decisions add --range 162.142.125.0/24 --duration 87600h --reason "Ataques SSH de Cersys" 109.205.213.99 --duration 0 --reason "Ataque SSH"
+```
+
+### 4.3.2 Eliminar decisiones
+Individual (Ejemplo de Borrado de la decision con IP address 162.142.125.50)
+```bash
+sudo cscli decisions delete --ip 162.142.125.50
+```
+Rango: (Borrado de decisiones con IP rango 162.142.125.0/24)
+```bash
+sudo cscli decisions delete --ip 162.142.125.0/24
+```
+
+### 4.3.3 Listar decisiones
+```bash
+cscli decisions list
+```
+
+## 4.4 Monitorear metricas
+Crowdsec recopila estadisticas del trafico bloqueado por nuestra maquina.
+
+Esto nos permite ver que desiones estan rechazando ataques y cuanta cantidad.
+
+Para ver todas las metricas
+```bash
+cscli metrics
+```
+
+Para comparar los paquetes bloqueados por nosotros vs CrowdSec
+```bash
+cscli metrics  show bouncers
+```
+
+El bouncer actualiza dinámicamente la blacklistdel nftables.
+Puedes revisar esta lista con:
+```bash
+ sudo nft list ruleset
+```
+        Tambien puedes revisar los sets especificos que CrowdSec crea con:
+```bash 
+ sudo nft list set inet filter "nombre del set"
+```
+        Monitorear las decisiones tomadas: 
+```bash
+sudo cscli decisions list
+```
+        Monitorear las alertas tomadas debido a decisiones:
+```bash 
+ sudo cscli alerts list
+```
+
+### Consejos
+
+Revisa periódicamente los logs y las decisiones para afinar la configuración de seguridad según el comportamiento real de tu red.
+            Los paquetes bloqueados apareceran como 2025-03-23T01:20:25.832745+01:00 Hostname kernel: [40387.495652]  [(PAQUETE BLOQUEADO)]: +  "las direcciones origen - destino"            
+                 - sudo cat /var/log/kern.log
+                 - sudo cat /var/log/syslog
+        
+        Las conexiones que no consiga bloquear el firewall aparecen en:
+                 - sudo cat /var/log/auth.log   
+
+        Comprobar que CrowdSec envia metricas y no tiene errores:
+                 - sudo cat /var/log/crowdsec.log
+
+        Comprobar que el Bouncer Firewall de CrowdSec para nftables actualiza las decisiones de la base de datos de CrowdSec y no tiene errores:
+                 - sudo cat /var/log/crowdsec-firewall-bouncer.log
+
+    6   Conclusión
+            Esta guía te proporciona una configuración avanzada de nftables con un conjunto dinámico que se integra con Crowdsec. 
+            Con esta solución, tu sistema Debian 13 estará protegido contra escaneos nmap y accesos SSH no autorizados,
+            además de contar con una capa colaborativa de seguridad que bloquea automáticamente las IPs maliciosas.
+
+            Implementa y ajusta estas configuraciones según las características específicas de tu red para mantener una defensa proactiva y adaptativa.
