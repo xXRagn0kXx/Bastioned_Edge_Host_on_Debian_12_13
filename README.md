@@ -240,17 +240,23 @@ Esta posee una base de datos de amenazas centralizada, CrowdSec analiza logs en 
 Esto nos permite quitarnos un grueso malicioso de IPs o de rangos sospechosos que estan recorriendo la red constantemente.
 
 ## 3.1 Escenarios de CrowdSec
-En CrowdSec los escenarios son politicas establecidas para activar rastreos de amenazas.
+Los "escenarios" son las reglas de deteccion que utiliza el agente, mientras que el "bouncer" es el componente que se encarga de la accion de bloqueo. Por lo tanto, no son lo mismo; son dos partes clave de un sistema de seguridad que trabajan juntas.
 
 Esto permite que solo busque y analice lo que nos interesa, haciendolo mas eficiente y granular.
 
-En nuestro caso como usamos Debian y tenemos SSH en la maquina instalamos:
+En resumen:
+CrowdSec Agent (LSO): Detecta ataques basandose en escenarios.
+
+Bouncer: Aplica las medidas de mitigacion (bloqueos) basandose en las decisiones del agente.
+
+Para nuestro caso como usamos Debian y tenemos SSH y VPN en la maquina instalamos:
 
  ```bash
 sudo cscli collections install crowdsecurity/linux
 sudo cscli collections install crowdsecurity/sshd
+sudo cscli collections install crowdsecurity/wireguard
 ```
-:book: Tienes mas colecciones adicionales disponibles con:
+:book: Tienes todas las colecciones disponibles con:
  ```bash
 sudo cscli collections list -a
  ```
@@ -263,6 +269,11 @@ Comprobamos los escenarios con:
 cscli scenarios list
 ```
 ---
+En resumen:
+CrowdSec Agent (LSO): Detecta ataques basandose en escenarios.
+
+Bouncer: Aplica las medidas de mitigacion (bloqueos) basandose en las decisiones del agente.
+
 
 ## 3.2 Integracion con nftables
 El bouncer leera las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizara automaticamente
