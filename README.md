@@ -397,7 +397,7 @@ Puedes revisar esta lista con:
 ```bash
  sudo nft list ruleset
 ```
-        Tambien puedes revisar los sets especificos que CrowdSec crea con:
+        Tambien puedes revisar los sets especificos que CrowdSec crea con: 
 ```bash 
  sudo nft list set inet filter "nombre del set"
 ```
@@ -421,18 +421,19 @@ sudo cat /var/log/kern.log
 sudo cat /var/log/syslog
 ```    
       
-        Las conexiones que no consiga bloquear el firewall aparecen en:
+Las conexiones que no consiga bloquear el firewall aparecen en:
 
 ```bash 
 sudo cat /var/log/auth.log   
 ```
       
-        Comprobar que CrowdSec envia metricas y no tiene errores:
+Comprobar que CrowdSec envia metricas y no tiene errores:
+
 ```bash 
 sudo cat /var/log/crowdsec.log
-``` 
-      
-        Comprobar que el Bouncer Firewall de CrowdSec para nftables actualiza las decisiones de la base de datos de CrowdSec y no tiene errores:
+```       
+
+Comprobar que el Bouncer Firewall de CrowdSec para nftables actualiza las decisiones de la base de datos de CrowdSec y no tiene errores:
 
 ```bash 
 sudo cat /var/log/crowdsec-firewall-bouncer.log
