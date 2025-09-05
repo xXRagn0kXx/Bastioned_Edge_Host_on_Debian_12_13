@@ -73,7 +73,7 @@ sudo apt update
 Instalamos el software:
 
 ```bash
-sudo apt install nftables crowdsec crowdsec-firewall-bouncer-nftables
+sudo apt install rsyslog nftables crowdsec crowdsec-firewall-bouncer-nftables
 ```
 
 
@@ -302,7 +302,43 @@ Nos indica que tenemos que aceptarlo en la pagina de antes para confirmarlo.
 
 Actualizamos la pagina web o vamos de nuevo a https://app.crowdsec.net/security-engines, 
 nos apareceremos en la subpestaña Engines donde nos mostrara el boton morado de "Accept Enroll", 
-¡¡Fecidades!!una vez confirmado ya estaria la vinculacion por fin.
+
+Como nos indico antes ahora que hemos aceptado el enroll reiniciamos el servicio:
+ ```bash
+sudo systemctl restart crowdsec*
+ ```
+Por ultimo habilitamos en la maquina recibir decisiones de las listas desde la consola central con:
+```bash
+cscli console enable -a console_management
+ ```
+
+¡¡Fecidades ya esta todo!! Vamos aplicarlo:
+```bash
+sudo systemctl reload crowdsec
+```
+
+Para comprobar que se aplico todo correctamente:
+```bash
+sudo cscli console status
+```
+
+Y nos mostrara una tabla con lo que este bien y mal:
+```bash
+╭────────────────────┬───────────┬──────────────────────────────────────────────────────╮
+│ Option Name        │ Activated │ Description                                          │
+├────────────────────┼───────────┼──────────────────────────────────────────────────────┤
+│ custom             │ ✅        │ Forward alerts from custom scenarios to the console  │
+│ manual             │ ✅        │ Forward manual decisions to the console              │
+│ tainted            │ ✅        │ Forward alerts from tainted scenarios to the console │
+│ context            │ ✅        │ Forward context with alerts to the console           │
+│ console_management │ ✅        │ Receive decisions from console                       │
+╰────────────────────┴───────────┴──────────────────────────────────────────────────────╯
+```
+
+Tambien Consultar en /var/log/crowdsec.log que este la linea:
+```bash
+time="20XX-XX-05TXX:XX:XX+0X:00" level=info msg="Machine is enrolled in the console, Loading PAPI Client"
+```
 
 :warning: El comando "cscli console enroll -e" que usaste antes puedes ustilizarlo con la misma ID tambien en mas maquinas que tengas y tan solo tendrias que aceptar el enroll en la pagina web.
 Recomiendo renombrar en la misma pagina web las maquinasa que agreguemos con su hostname o nombre de dominio FQDN para no confunfirnos.
