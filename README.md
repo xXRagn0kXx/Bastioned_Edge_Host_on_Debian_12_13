@@ -261,8 +261,49 @@ Crowdsec es una herramienta empresarial con modelo gratutito colaborativo.
 Esta posee una base de datos de amenazas centralizada, CrowdSec analiza logs en busca de comportamientos maliciosos y genera alertas que se envian a esta base de datos centralizada (por ejemplo, intentos de acceso no autorizado) cuando la base de datos recibe la alerta de varios hosts añade esa ip o rango a la blacklist de la base de datos.
 
 Esto nos permite quitarnos un grueso malicioso de IPs o de rangos sospechosos que estan recorriendo la red constantemente.
+ 
+## 3.1 Registro:
+ CrowdSec posee varias bases de datos de reputacion, por registrarnos gratuitamente y vincular la cuenta a nuestro linux se ños añadiran mas funcionalidades de reputacion.
 
-## 3.1 Escenarios de CrowdSec
+Al ninal la seguridad 100% sabemos que nunca existe, pero en esta guia se hace lo que se puede para ello.
+Nos podemos registrar en:
+* https://www.crowdsec.net/
+* https://app.crowdsec.net/
+
+Para aderir la cuenta a nuestra maquina:
+Una vez confirmado el email, vamos a https://app.crowdsec.net/
+
+Despues de logar vamos al apartado Security Engines en https://app.crowdsec.net/security-engines 
+
+Al entrar nos aparecera un cuadro:
+
+ ```bash
+No Security Engine Installed
+Install your first Security Engine with Attack Scenarios to see live attacks detected by CrowdSec.
+```
+
+*Entramos al boton morado* "Install Security Engine"
+
+ En ese mismo apartado vendra el comando a ejecutar en nuestra maquina
+ ```bash
+ cscli console enroll -e context cm274sg54b012ffs0eq23sadabds9wkzumhp
+```
+Mostrando:
+ ```bash
+INFO manual set to true
+INFO context set to true
+INFO Enabled manual : Forward manual decisions to the console
+INFO Enabled tainted : Forward alerts from tainted scenarios to the console
+INFO Enabled context : Forward context with alerts to the console
+INFO Watcher successfully enrolled. Visit https://app.crowdsec.net to accept it.
+INFO Please restart crowdsec after accepting the enrollment.
+ ```
+Nos indica que tenemos que aceptarlo en la pagina de antes.
+
+Actualizamos o vamos de nuevo a https://app.crowdsec.net/security-engines y apareceremos en la subpestaña Engines donde nos mostrara el boton morado de "Accept Enroll", 
+¡¡Fecidades!!una vez confirmado ya estaria la vinculacion.
+
+## 3.2 Escenarios de CrowdSec
 Los "escenarios" son las reglas de deteccion que utiliza el agente, mientras que el "bouncer" es el componente que se encarga de la accion de bloqueo. 
 
 Por lo tanto son dos partes clave de un sistema de seguridad que trabajan juntas.
@@ -300,7 +341,7 @@ CrowdSec Agent (LSO): Detecta ataques basandose en escenarios.
 Bouncer: Aplica las medidas de mitigacion (bloqueos) basandose en las decisiones del agente.
 
 
-## 3.2 Integracion con nftables
+## 3.3 Integracion con nftables
 El bouncer leera las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizara automaticamente
 el conjunto blocklist definido en tu archivo de nftables. 
 
