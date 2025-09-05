@@ -2,6 +2,13 @@
 
 En esta guia aprenderemos a bastionar un equipo con acceso desde internet para usarlo de frontera(VPN) y estar algo mas protegido de las amenazas de internet (no existe sistema 100% seguro).
 
+Esta guia te proporciona una configuracion avanzada de nftables con un conjunto dinamico que se integra con Crowdsec. 
+            
+Con esta solucion, tu sistema Debian 13 estaraa mas protegido contra escaneos de nmap y accesos SSH no autorizados,
+
+Ademas de contar con una capa colaborativa de seguridad que bloquea automaticamente las IPs con mala reputacion.
+
+ 
 ---
 
 ![Portada de Firewall](Firewall_Linux_Portada.png)
@@ -52,13 +59,13 @@ sudo apt install nftables crowdsec crowdsec-firewall-bouncer-nftables
 # :lock: 2 Configurar Nftables
 
 
-El sistema de firewall nftables se configura creando un archivo que organiza las reglas en una jerarquía clara. 
+El sistema de firewall nftables se configura creando un archivo que organiza las reglas en una jerarquia clara. 
 
-En la cima están las tablas, que actúan como contenedores lógicos para las reglas, como la tabla filter para el filtrado de paquetes. Dentro de cada tabla se definen cadenas, que son listas ordenadas de reglas. 
+En la cima estan las tablas, que actuan como contenedores logicos para las reglas, como la tabla filter para el filtrado de paquetes. Dentro de cada tabla se definen cadenas, que son listas ordenadas de reglas. 
 
-Las cadenas base son puntos de entrada para el tráfico de red, vinculadas a puntos específicos del kernel (hooks) como input (para el tráfico entrante), output (para el saliente) y forward (para el tráfico que atraviesa el sistema). 
+Las cadenas base son puntos de entrada para el trafico de red, vinculadas a puntos especificos del kernel (hooks) como input (para el trafico entrante), output (para el saliente) y forward (para el trafico que atraviesa el sistema). 
 
-También puedes crear cadenas regulares personalizadas para organizar las reglas de forma más modular y llamarlas desde una cadena base. 
+Tambien puedes crear cadenas regulares personalizadas para organizar las reglas de forma mas modular y llamarlas desde una cadena base. 
 
 Finalmente, las reglas son las instrucciones que se ejecutan sobre un paquete que coincide con ciertas condiciones, con acciones como accept, drop o jump (saltar a otra cadena).
 
@@ -70,16 +77,16 @@ Este es un conjunto de reglas recopilado para intentar aplicar la seguridad posi
 
 * flush ruleset: Limpia cualquier regla previa para evitar conflictos.
 * table intet filter: Tabla pricipal que contendra toda la escructura y las cadenas mas con los conjuntos de nuestro nftables
-* blocklist-ipv4: Define un conjunto dinámico de IPs version 4 que se bloquearán automáticamente durante el tiempo que estime CrowdSec.
-* blocklist-ipv6: Define un conjunto dinámico de IPs version 6 que se bloquearán automáticamente durante el tiempo que estime CrowdSec.
+* blocklist-ipv4: Define un conjunto dinamico de IPs version 4 que se bloquearan automaticamente durante el tiempo que estime CrowdSec.
+* blocklist-ipv6: Define un conjunto dinamico de IPs version 6 que se bloquearan automaticamente durante el tiempo que estime CrowdSec.
 * chain input: Cadena  que contendra todas las reglas de entrada a nuestra maquina.
-* ct state established,related accept: Permite tráfico de conexiones ya establecidas o relacionadas.
-* iifname "lo" accept: Se permite el tráfico de la interfaz loopback.
+* ct state established,related accept: Permite trafico de conexiones ya establecidas o relacionadas.
+* iifname "lo" accept: Se permite el trafico de la interfaz loopback.
 * ICMP: Se permite el ping (echo-request y echo-reply).
-* SSH con limitación: Solo se aceptan hasta 10 nuevas conexiones por minuto al puerto 22, ayudando a mitigar ataques de fuerza bruta.
-* ip saddr @crowdsec-blacklist-ipv4 drop: Bloquea el tráfico proveniente de IPs version 4 presentes en la lista dinámica de CrowdSec.
-* ip saddr @crowdsec-blacklist-ipv6 drop: Bloquea el tráfico proveniente de IPs version 6 presentes en la lista dinámica de CrowdSec.
-* Bloqueo de escaneos nmap: Se aplican reglas para descartar paquetes con combinaciones de flags consideradas anómalas (características de ciertos escaneos).
+* SSH con limitacion: Solo se aceptan hasta 10 nuevas conexiones por minuto al puerto 22, ayudando a mitigar ataques de fuerza bruta.
+* ip saddr @crowdsec-blacklist-ipv4 drop: Bloquea el trafico proveniente de IPs version 4 presentes en la lista dinamica de CrowdSec.
+* ip saddr @crowdsec-blacklist-ipv6 drop: Bloquea el trafico proveniente de IPs version 6 presentes en la lista dinamica de CrowdSec.
+* Bloqueo de escaneos nmap: Se aplican reglas para descartar paquetes con combinaciones de flags consideradas anomalas (caracteristicas de ciertos escaneos).
 * chain forward: Esta cadena contrendra las reglas de reenvio de trafico en la maquina, por defecto todo deshabilitado.
 * chain output: Esta cadena contrendra las reglas de salida de trafico en la maquina, por defecto todo el trafico saliente habilitado.
 
@@ -94,13 +101,13 @@ flush ruleset
 
 table inet filter {
 
-        # Conjunto dinámico de IPs bloqueadas de CrowdSec (IPv4)
+        # Conjunto dinamico de IPs bloqueadas de CrowdSec (IPv4)
         set crowdsec-blacklist-ipv4 {
         type ipv4_addr
         flags dynamic, timeout
         }
 
-        # Conjunto dinámico de IPs bloqueadas de CrowdSec (IPv6)
+        # Conjunto dinamico de IPs bloqueadas de CrowdSec (IPv6)
         set crowdsec-blacklist-ipv6 {
         type ipv6_addr
         flags dynamic, timeout
@@ -112,10 +119,10 @@ table inet filter {
         # Permitir conexiones ya establecidas o relacionadas
                 ct state established,related accept
 
-        # Permitir tráfico en la interfaz local (loopback)
+        # Permitir trafico en la interfaz local (loopback)
                 iifname "lo" accept
 
-       # Bloquear IPs que estén en la blacklist (actualizada por Crowdsec)
+       # Bloquear IPs que esten en la blacklist (actualizada por Crowdsec)
                 ip saddr @crowdsec-blacklist-ipv4 drop
                 ip6 saddr @crowdsec-blacklist-ipv6 drop
 
@@ -141,10 +148,10 @@ table inet filter {
         # Escaneo XMAS: FIN, PSH y URG activos
                 tcp flags & (fin|psh|urg) == fin|psh|urg drop comment "XMAS scan"
 
-        # Combinaciones inválidas de flags (SYN con FIN)
+        # Combinaciones invalidas de flags (SYN con FIN)
                 tcp flags & (syn|fin) == syn|fin drop comment "SYN+FIN"
 
-        # Combinaciones inválidas de flags (SYN con RST)
+        # Combinaciones invalidas de flags (SYN con RST)
                 tcp flags & (syn|rst) == syn|rst drop comment "SYN+RST"
 
         # Escaneo ACK+FIN o FIN+ACK
@@ -153,13 +160,13 @@ table inet filter {
         # Escaneo Maimon: FIN activo con URG/PSH inactivos
                 tcp flags & (fin|psh|urg) == fin drop
 
-        # Protección contra paquetes inválidos (ej. sin handshake TCP)
+        # Proteccion contra paquetes invalidos (ej. sin handshake TCP)
                 ct state invalid counter drop
 
-        # Protección contra fragmentación sospechosa
+        # Proteccion contra fragmentacion sospechosa
                 ip frag-off & 0x1fff != 0 counter drop
 
-        # Bloquear flags reservados (ECN/CWR activos sin negociación previa)
+        # Bloquear flags reservados (ECN/CWR activos sin negociacion previa)
                 tcp flags & (ecn|cwr) != 0x0 drop comment "Flags reservados activos (RFC 3540)"
 
         # Escaneo ACK: Usado para detectar reglas de firewall.
@@ -167,24 +174,24 @@ table inet filter {
 
         # Anti-fingerprinting
         #       tcp option timestamp exists drop comment "Bloquear timestamp (OS detection)"
-                tcp option sack-perm exists drop comment "Bloquear SACK (manipulación de paquetes)"
+                tcp option sack-perm exists drop comment "Bloquear SACK (manipulacion de paquetes)"
                 tcp option md5sig exists drop comment "Evitar firmas MD5 (rare en escaneos)"
-                tcp option window exists drop comment "Bloquear opción Window Scale"
+                tcp option window exists drop comment "Bloquear opcion Window Scale"
                 tcp option mss exists drop comment "Bloquear MSS para evitar fingerprinting"
 
         #Bloquear escaneos Window basados en tamaño de ventana TCP
                 tcp flags ack tcp window <= 1024 drop comment "Bloquear escaneos Window"
 
-        # Bloquear paquetes con puerto fuente 0 (anómalo en escaneos o intentos de evasión)
+        # Bloquear paquetes con puerto fuente 0 (anomalo en escaneos o intentos de evasion)
                 tcp sport 0 drop comment "Bloquear paquetes con puerto fuente 0"
 
-        # Bloquear paquetes con puerto destino 0 (anómalo en escaneos o intentos de evasión)
+        # Bloquear paquetes con puerto destino 0 (anomalo en escaneos o intentos de evasion)
                 tcp dport 0 drop comment "Bloquear paquetes con puerto destino 0"
 
-        #Protección extendida TCP
+        #Proteccion extendida TCP
                 tcp option fastopen exists drop comment "Bloquear TCP Fast Open (RFC 7413)"
 
-        # Límite global de nuevas conexiones (Opcional)
+        # Limite global de nuevas conexiones (Opcional)
         # ct state new limit rate 30/second counter accept
 
         # Logging de paquetes bloqueados (opcional)
@@ -195,11 +202,11 @@ table inet filter {
         chain forward {
                 type filter hook forward priority 0; policy drop;
 
-         # Permitir tráfico entre WireGuard y la red local
+         # Permitir trafico entre WireGuard y la red local
                 iifname "wg0" oifname "enP3p49s0" accept  # Cambia "eth0" por tu interfaz LAN
                 iifname "enP3p49s0" oifname "wg0" ct state established,related accept
 
-        # Permitir tráfico específico desde 10.10.10.1 hacia 192.168.1.0/24
+        # Permitir trafico especifico desde 10.10.10.1 hacia 192.168.1.0/24
                 ip saddr 10.10.10.0/24 ip daddr 192.168.1.0/24 accept
 
         }
@@ -216,7 +223,7 @@ table inet filter {
 ```
 
 
-   :warning: (IMPORTANTE) Una vez guardado el archivo, revisa la configuración ejecutando:
+   :warning: (IMPORTANTE) Una vez guardado el archivo, revisa la configuracion ejecutando:
 
    ```bash
    sudo nft -f /etc/nftables.conf
@@ -227,7 +234,7 @@ table inet filter {
 ---
 
 
-# 3 Configuración de Crowdsec
+# 3 Configuracion de Crowdsec
 
 Crowdsec es una herramienta empresarial con modelo gratutito colaborativo.
 
@@ -260,11 +267,11 @@ cscli scenarios list
 ```
 ---
 
-## 3.2 Integración con nftables
-El bouncer leerá las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizará automáticamente
-el conjunto blocklist definido en tu archivo de nftables. De esta forma, las IPs maliciosas quedarán bloqueadas durante el tiempo configurado por CrowdSec.
+## 3.2 Integracion con nftables
+El bouncer leera las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizara automaticamente
+el conjunto blocklist definido en tu archivo de nftables. De esta forma, las IPs maliciosas quedaran bloqueadas durante el tiempo configurado por CrowdSec.
         
-Si deseas que CrowdSec actualice las listas en tu fichero de reglas personalizadas, debes modificar la configuración del bouncer para que apunte a la misma tabla y cadena
+Si deseas que CrowdSec actualice las listas en tu fichero de reglas personalizadas, debes modificar la configuracion del bouncer para que apunte a la misma tabla y cadena
 donde se encuentran tus sets en el fichero /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
 
 En el apartado deny_log lo cambiaremos de "false" a "true" y mas abajo descomentamos deny_log_prefix y lo personalizamos con " [(CrowdSec BLOCK)]: "
@@ -330,10 +337,10 @@ sudo systemctl restart crowdsec
 sudo systemctl restart crowdsec-firewall-bouncer-nftables
 ```
 
-# :ballot_box_with_check: 4 Verificación y Monitorizacion
+# :ballot_box_with_check: 4 Verificacion y Monitorizacion
 
 ## 4.1 Reglas activas
-Para comprobar que las reglas están activas, utiliza:
+Para comprobar que las reglas estan activas, utiliza:
 ```bash
 sudo nft list ruleset
 ```
@@ -385,7 +392,7 @@ Para comparar los paquetes bloqueados por nosotros vs CrowdSec
 cscli metrics  show bouncers
 ```
 
-El bouncer actualiza dinámicamente la blacklistdel nftables.
+El bouncer actualiza dinamicamente la blacklistdel nftables.
 Puedes revisar esta lista con:
 ```bash
  sudo nft list ruleset
@@ -403,25 +410,28 @@ sudo cscli decisions list
  sudo cscli alerts list
 ```
 
-### Consejos
+### :rotating_light: Consejos
 
-Revisa periódicamente los logs y las decisiones para afinar la configuración de seguridad según el comportamiento real de tu red.
-            Los paquetes bloqueados apareceran como 2025-03-23T01:20:25.832745+01:00 Hostname kernel: [40387.495652]  [(PAQUETE BLOQUEADO)]: +  "las direcciones origen - destino"            
-                 - sudo cat /var/log/kern.log
-                 - sudo cat /var/log/syslog
-        
+ Revisa periodicamente los logs y las decisiones para afinar la configuracion de seguridad segun el comportamiento real de tu red.
+
+Los paquetes bloqueados apareceran como 2025-03-23T01:20:25.832745+01:00 Hostname kernel: [40387.495652]  [(PAQUETE BLOQUEADO)]: +  "las direcciones origen - destino"            
+```bash 
+sudo cat /var/log/kern.log
+sudo cat /var/log/syslog
+```    
+      
         Las conexiones que no consiga bloquear el firewall aparecen en:
-                 - sudo cat /var/log/auth.log   
-
+```bash 
+sudo cat /var/log/auth.log   
+```
+      
         Comprobar que CrowdSec envia metricas y no tiene errores:
-                 - sudo cat /var/log/crowdsec.log
-
+```bash 
+sudo cat /var/log/crowdsec.log
+``` 
+      
         Comprobar que el Bouncer Firewall de CrowdSec para nftables actualiza las decisiones de la base de datos de CrowdSec y no tiene errores:
-                 - sudo cat /var/log/crowdsec-firewall-bouncer.log
-
-    6   Conclusión
-            Esta guía te proporciona una configuración avanzada de nftables con un conjunto dinámico que se integra con Crowdsec. 
-            Con esta solución, tu sistema Debian 13 estará protegido contra escaneos nmap y accesos SSH no autorizados,
-            además de contar con una capa colaborativa de seguridad que bloquea automáticamente las IPs maliciosas.
-
-            Implementa y ajusta estas configuraciones según las características específicas de tu red para mantener una defensa proactiva y adaptativa.
+```bash 
+sudo cat /var/log/crowdsec-firewall-bouncer.log
+```
+Implementa y ajusta estas configuraciones segun las caracteristicas especificas de tu red para mantener una defensa proactiva y adaptativa.
