@@ -224,7 +224,7 @@ table inet filter {
 
 
    :warning: (IMPORTANTE) Una vez guardado el archivo, revisa la configuracion ejecutando:
-
+   
    ```bash
    sudo nft -f /etc/nftables.conf
    ```
@@ -232,10 +232,7 @@ table inet filter {
 :white_check_mark: Si el comando no duelve nada el fichero esta correcto.
 
 ---
-
-
 # 3 Configuracion de Crowdsec
-
 Crowdsec es una herramienta empresarial con modelo gratutito colaborativo.
 
 Esta posee una base de datos de amenazas centralizada, CrowdSec analiza logs en busca de comportamientos maliciosos y genera alertas que se envian a esta base de datos centralizada (por ejemplo, intentos de acceso no autorizado) cuando la base de datos recibe la alerta de varios hosts añade esa ip o rango a la blacklist de la base de datos.
