@@ -418,7 +418,7 @@ Monitorear las alertas tomadas debido a decisiones:
  sudo cscli alerts list
 ```
 
-### :rotating_light: Consejos
+# :rotating_light: 5 Consejos
 
  Revisa periodicamente los logs y las decisiones para afinar la configuracion de seguridad segun el comportamiento real de tu red.
 
