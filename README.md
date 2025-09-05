@@ -62,13 +62,13 @@ También puedes crear cadenas regulares personalizadas para organizar las reglas
 
 Finalmente, las reglas son las instrucciones que se ejecutan sobre un paquete que coincide con ciertas condiciones, con acciones como accept, drop o jump (saltar a otra cadena).
 
-Creamos o editamos el archivo
+## 2.1 Creamos el archivo de nftables
+
+Este es un conjunto de reglas recopilado para intentar aplicar la seguridad posible sin restar rendimiento, siempre puede ser mejorable y mas restrictivo, esto solo es un grueso de trabajo ya hecho por mi.
 
 ```bash
 nano /etc/nftables.conf
 ```
-Este es un conjunto de reglas recopilado para intentar aplicar la seguridad posible sin restar rendimiento, siempre puede ser mejorable y mas restrictivo, esto solo es un grueso de trabajo ya hecho por mi.
-
 :warning: Recuerda reemplazar las direcciones de red y puertos que necesites para tu entorno.
 
 ```bash
