@@ -305,6 +305,7 @@ nos apareceremos en la subpestaña Engines donde nos mostrara el boton morado de
 ¡¡Fecidades!!una vez confirmado ya estaria la vinculacion por fin.
 
 :warning: El comando "cscli console enroll -e" que usaste antes puedes ustilizarlo con la misma ID tambien en mas maquinas que tengas y tan solo tendrias que aceptar el enroll en la pagina web.
+Recomiendo renombrar en la misma pagina web las maquinasa que agreguemos con su hostname o nombre de dominio FQDN para no confunfirnos.
 
 ## 3.2 Escenarios de CrowdSec
 Los "escenarios" son las reglas de deteccion que utiliza el agente, mientras que el "bouncer" es el componente que se encarga de la accion de bloqueo. 
