@@ -269,7 +269,9 @@ cscli scenarios list
 
 ## 3.2 Integracion con nftables
 El bouncer leera las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizara automaticamente
-el conjunto blocklist definido en tu archivo de nftables. De esta forma, las IPs maliciosas quedaran bloqueadas durante el tiempo configurado por CrowdSec.
+el conjunto blocklist definido en tu archivo de nftables. 
+
+De esta forma, las IPs maliciosas quedaran bloqueadas durante el tiempo configurado por CrowdSec.
         
 Si deseas que CrowdSec actualice las listas en tu fichero de reglas personalizadas, debes modificar la configuracion del bouncer para que apunte a la misma tabla y cadena
 donde se encuentran tus sets en el fichero /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
@@ -418,7 +420,7 @@ Monitorear las alertas tomadas debido a decisiones:
  sudo cscli alerts list
 ```
 
-# :rotating_light: 5 Consejos
+# :rotating_light: 5  Consejos
 
  Revisa periodicamente los logs y las decisiones para afinar la configuracion de seguridad segun el comportamiento real de tu red.
 
