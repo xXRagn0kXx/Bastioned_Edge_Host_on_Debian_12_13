@@ -227,7 +227,7 @@ table inet filter {
 ---
 
 
-### 3 Configuración de Crowdsec
+# 3 Configuración de Crowdsec
 
 Crowdsec es una herramienta empresarial con modelo gratutito colaborativo.
 
@@ -235,12 +235,10 @@ Esta posee una base de datos de amenazas centralizada, CrowdSec analiza logs en 
 
 Esto nos permite quitarnos un grueso malicioso de IPs o de rangos sospechosos que estan recorriendo la red constantemente.
 
-3.1 Escenarios de CrowdSec
+## 3.1 Escenarios de CrowdSec
 En CrowdSec los escenarios son politicas establecidas para activar rastreos de amenazas.
 
 Esto permite que solo busque y analice lo que nos interesa, haciendolo mas eficiente y granular.
-
-
 
 En nuestro caso como usamos Debian y tenemos SSH en la maquina instalamos:
 
@@ -248,14 +246,103 @@ En nuestro caso como usamos Debian y tenemos SSH en la maquina instalamos:
 sudo cscli collections install crowdsecurity/linux
 sudo cscli collections install crowdsecurity/sshd
 ```
+:book: Tienes mas colecciones adicionales disponibles con:
+ ```bash
+sudo cscli collections list -a
+ ```
 
 :white_check_mark: Si nos inidica "Nothing to install or remove" ya estaran instaladas.
 
-Comprobamos con:
+Comprobamos los escenarios con:
 
  ```bash
 cscli scenarios list
 ```
-
 ---
+
+## 3.2
+Integración con nftables:
+El bouncer leerá las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizará automáticamente
+el conjunto blocklist definido en tu archivo de nftables. De esta forma, las IPs maliciosas quedarán bloqueadas durante el tiempo configurado por CrowdSec.
+        
+Si deseas que CrowdSec actualice las listas en tu fichero de reglas personalizadas, debes modificar la configuración del bouncer para que apunte a la misma tabla y cadena
+donde se encuentran tus sets en el fichero /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+
+En el apartado deny_log lo cambiaremos de "false" a "true" y mas abajo descomentamos deny_log_prefix y lo personalizamos con " [(CrowdSec BLOCK)]: "
+
+En el apartado de blacklists es importante especificar los set de blacklists creadas para CrowdSec en nuestro /etc/nftables.conf (crowdsec-blacklist-ipv4 y crowdsec-blacklist-ipv6)
+        
+En el apartado  ## nftables del fichero debemos modificar los valores "table" y "chain" con "filter" e "input" tal y como hemos puesto nuestro fichero /etc/nftables.conf tanto para el apartado IPv4 como IPv6.
+
+ ```bash
+sudo   nano /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+ ```
+
+ Deberia quedar algo como esto:
+  ```bash
+log_mode: file
+log_dir: /var/log/
+log_level: info
+insecure_skip_verify: false
+disable_ipv6: false
+deny_action: DROP
+deny_log: true
+supported_decisions_types:
+  - ban
+#to change log prefix
+deny_log_prefix: " [(CrowdSec BLOCK)]: "
+#to change the blacklists name
+blacklists_ipv4: crowdsec-blacklist-ipv4
+blacklists_ipv6: crowdsec-blacklist-ipv6
+#type of ipset to use
+ipset_type: nethash
+#if present, insert rule in those chains
+iptables_chains:
+  - INPUT
+#  - FORWARD
+#  - DOCKER-USER
+
+## nftables
+nftables:
+  ipv4:
+    enabled: true
+    set-only: false
+    table: filter
+    chain: input
+    priority: -10
+  ipv6:
+    enabled: true
+    set-only: false
+    table: filter
+    chain: input
+    priority: -10
+
+nftables_hooks:
+  - input
+  - forward
+
+ ```
+ ---
+
+ Para asegurarte de que todos los cambios se apliquen, reinicia los servicios de Crowdsec y del bouncer:
+
+  ```bash
+sudo systemctl restart crowdsec
+sudo systemctl restart crowdsec-firewall-bouncer-nftables
+```
+
+# :ballot_box_with_check: 4 Verificación y Monitorizacion
+
+## 4.1 Reglas activas
+Para comprobar que las reglas están activas, utiliza:
+```bash
+sudo nft list ruleset
+```
+## 4.2 Comprobar estado de Crowdsec
+Revisa los logs de Crowdsec para ver la actividad y decisiones:
+```bash
+sudo journalctl -u crowdsec
+```
+## 4.3 Administrar decisiones
+Las decisiones son las reglas que bloquaran o no el trafico desde las direcciones espeficificadas, para administrarlas tenemos las siguientes utilidades.
 
