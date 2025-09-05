@@ -15,6 +15,26 @@ Ademas de contar con una capa colaborativa de seguridad que bloquea automaticame
 
 ---
 
+## 📄 Índice
+
+* [:atom: Caracteristicas](#atom-caracteristicas)
+* [:white_check_mark: Requisitos](#white_check_mark-requisitos)
+* [:gear: 1 Instalar el software necesario](#gear-1-instalar-el-software-necesario)
+* [:lock: 2 Configurar Nftables](#lock-2-configurar-nftables)
+    * [2.1 Crear el archivo de nftables](#21-crear-el-archivo-de-nftables)
+* [:wrench: 3 Configuracion de Crowdsec](#wrench-3-configuracion-de-crowdsec)
+    * [3.1 Escenarios de CrowdSec](#31-escenarios-de-crowdsec)
+    * [3.2 Integracion con nftables](#32-integracion-con-nftables)
+* [:ballot_box_with_check: 4 Verificacion y Monitorizacion](#ballot_box_with_check-4-verificacion-y-monitorizacion)
+    * [4.1 Reglas activas](#41-reglas-activas)
+    * [4.2 Comprobar estado de Crowdsec](#42-comprobar-estado-de-crowdsec)
+    * [4.3 Administrar decisiones](#43-administrar-decisiones)
+        * [4.3.1 Agregar decisiones](#431-agregar-decisiones)
+        * [4.3.2 Eliminar decisiones](#432-eliminar-decisiones)
+        * [4.3.3 Listar decisiones](#433-listar-decisiones)
+    * [4.4 Monitorear metricas](#44-monitorear-metricas)
+* [:rotating_light: 5 Consejos](#rotating_light-5-consejos)
+
 ## :atom: Caracteristicas
 
 * Compatible con cualquier arquitectura de debian 12 y 13.
