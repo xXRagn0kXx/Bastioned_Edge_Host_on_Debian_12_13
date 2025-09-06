@@ -425,51 +425,27 @@ Editamos:
 sudo   nano /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
  ```
 
- Deberia quedar algo como esto:
+ Deberiais editar solo esto:
   ```yaml
-log_mode: file
-log_dir: /var/log/
-log_level: info
-insecure_skip_verify: false
-disable_ipv6: false
-deny_action: DROP
 deny_log: true
-supported_decisions_types:
-  - ban
-#to change log prefix
-deny_log_prefix: " [(CrowdSec BLOCK)]: "
-#to change the blacklists name
 blacklists_ipv4: crowdsec-blacklists-ipv4
 blacklists_ipv6: crowdsec-blacklists-ipv6
-#type of ipset to use
-ipset_type: nethash
-#if present, insert rule in those chains
-iptables_chains:
-  - INPUT
-#  - FORWARD
-#  - DOCKER-USER
-
 ## nftables
 nftables:
   ipv4:
     enabled: true
     set-only: false
-    table: filter
+    table: inet
     chain: input
     priority: -10
   ipv6:
     enabled: true
     set-only: false
-    table: filter
+    table: inet
     chain: input
     priority: -10
-
-nftables_hooks:
-  - input
-  - forward
-
- ```
- ---
+```
+---
 
  Para asegurarte de que todos los cambios se apliquen, reinicia los servicios de Crowdsec y del bouncer:
 
