@@ -572,4 +572,27 @@ Comprobar que el Bouncer Firewall de CrowdSec para nftables actualiza las decisi
 sudo cat /var/log/crowdsec-firewall-bouncer.log
 ```
 
+Muchas mejoras estan tambien bastionando el sysctl.conf
+
+```bash 
+sudo nano /etc/sysctl.conf   
+```
+
+```bash 
+net.ipv4.tcp_syncookies=1
+net.ipv4.ip_default_ttl=255
+#Desabilitar Ipv6
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+# Martian Packets
+net.ipv4.conf.all.log_martians = 1
+net.ipv4.conf.default.log_martians=1
+net.ipv4.conf.all.rp_filter=1
+net.ipv4.conf.default.rp_filter=1
+```
+Para aplicar los cambios:
+```bash 
+sudo sysctl -p 
+```
+
 Implementa y ajusta estas configuraciones segun las caracteristicas especificas de tu red para mantener una defensa proactiva y adaptativa.
