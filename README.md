@@ -343,6 +343,17 @@ time="20XX-XX-05TXX:XX:XX+0X:00" level=info msg="Machine is enrolled in the cons
 :warning: El comando "cscli console enroll -e" que usaste antes puedes ustilizarlo con la misma ID tambien en mas maquinas que tengas y tan solo tendrias que aceptar el enroll en la pagina web.
 Recomiendo renombrar en la misma pagina web las maquinasa que agreguemos con su hostname o nombre de dominio FQDN para no confunfirnos.
 
+Como el fin de todo esto es poder tener mas listas de bloqueos, ahora que ya esta gestionable desde la consola nos vamos a https://app.crowdsec.net/blocklists.
+* Pestaña de "blocklist" y bajamos
+* Apartado de "General".
+*Veremos las listas de Firehol BotScout list y Firehol greensnow.co list cone tiqueta FREE TIER (Gratis)
+*Clicamos en ellas y damos a "suscribe".
+*Nos aparecera una ventana, Vamos a la españa de SecurityEngines y elejimos las maquinas en las que lo queramos instalar,mas abajo marcamos la opcion Ban
+*Por ultimo damos "confirm subscription" y la lista se instalara en nuestra maquina
+
+:book:Tambien podemos acceder al mismo menu llendo a nuestro Engine en https://app.crowdsec.net/security-engines, pinchamos en el boton de blocklist de cada uno. 
+En la ventana que se abrira damos a "Browse available blockList"
+
 ## 3.2 Escenarios de CrowdSec
 Los "escenarios" son las reglas de deteccion que utiliza el agente, mientras que el "bouncer" es el componente que se encarga de la accion de bloqueo. 
 
