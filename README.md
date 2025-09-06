@@ -364,7 +364,7 @@ sudo cscli collections install crowdsecurity/wireguard
 
 Si nos arrependitmos de alguna: Ejemplo VPN
  ```bash
-cscli collections remove crowdsec/wireguard-vpn
+ cscli collections remove crowdsecurity/wireguard
  ```
 
 :book: Tienes todas las colecciones disponibles con:
