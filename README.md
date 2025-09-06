@@ -440,13 +440,13 @@ nftables:
   ipv4:
     enabled: true
     set-only: false
-    table: inet
+    table: filter
     chain: input
     priority: -10
   ipv6:
     enabled: true
     set-only: false
-    table: inet
+    table: filter
     chain: input
     priority: -10
 ```
