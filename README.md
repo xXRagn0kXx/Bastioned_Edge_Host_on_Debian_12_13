@@ -352,7 +352,7 @@ Como el fin de todo esto es poder tener mas listas de bloqueos, ahora que ya est
 * Por ultimo damos "confirm subscription" y la lista se instalara en nuestra maquina
 
 :book:Tambien podemos acceder al mismo menu llendo a nuestro Engine en https://app.crowdsec.net/security-engines, pinchamos en el boton de blocklist de cada uno. 
-En la ventana que se abrira damos a "Browse available blockList".
+En la ventana que se abrira damos a "Browse available blocklist".
 
 ## 3.2 Escenarios de CrowdSec
 Los "escenarios" son las reglas de deteccion que utiliza el agente, mientras que el "bouncer" es el componente que se encarga de la accion de bloqueo. 
