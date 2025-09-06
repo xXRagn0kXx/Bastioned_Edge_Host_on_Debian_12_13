@@ -256,12 +256,20 @@ table inet filter {
 
 ---
 # :wrench: 3 Configuracion de Crowdsec
-Crowdsec es una herramienta empresarial con modelo gratutito colaborativo.
+Crowdsec es una herramienta empresarial con modelo gratutito colaborativo, algo asi como un "waze" de IP maliciosas.
 
-Esta posee una base de datos de amenazas centralizada, CrowdSec analiza logs en busca de comportamientos maliciosos y genera alertas que se envian a esta base de datos centralizada (por ejemplo, intentos de acceso no autorizado) cuando la base de datos recibe la alerta de varios hosts añade esa ip o rango a la blacklist de la base de datos.
+Esta posee varias bases de datos de IPs maliciosas, CrowdSec analiza logs en busca de comportamientos maliciosos y genera alertas que se envian a estas bases de datos (por ejemplo, intentos de acceso no autorizado a otra maquina).
+Cuando la base de datos recibe la alerta de varios hosts o repetidas veces se añade esa ip o rango a la blacklist de las bases de datos.
 
-Esto nos permite quitarnos un grueso malicioso de IPs o de rangos sospechosos que estan recorriendo la red constantemente.
- 
+Ya que nuestros hosts estaran conectados a ellas. nos quita un grueso malicioso de IPs o de rangos que estan atacando la red constantemente.
+
+Las reglas son diferentes para los usuarios gratuitos y de pago:
+* Los usuarios gratuitos que no contribuyen regularmente obtienen el Community Blocklist (Lite)
+* Los usuarios gratuitos que contribuyen regularmente obtienen acceso a la Community Blocklist
+* Los usuarios de pago obtienen acceso a , incluso si no contribuyenCommunity Blocklist (Premium)
+
+En esta guia se usara la  Community Blocklist ya que no es la mas basica y es gratuita.
+
 ## 3.1 Registro:
  CrowdSec posee varias bases de datos de reputacion, por registrarnos gratuitamente y vincular la cuenta a nuestro linux se ños añadiran mas funcionalidades de reputacion.
 
