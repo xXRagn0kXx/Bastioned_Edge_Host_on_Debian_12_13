@@ -125,13 +125,13 @@ flush ruleset
 table inet filter {
 
         # Conjunto dinamico de IPs bloqueadas de CrowdSec (IPv4)
-        set crowdsec-blacklist-ipv4 {
+        set crowdsec-blacklists-ipv4 {
         type ipv4_addr
         flags dynamic, timeout
         }
 
         # Conjunto dinamico de IPs bloqueadas de CrowdSec (IPv6)
-        set crowdsec-blacklist-ipv6 {
+        set crowdsec-blacklists-ipv6 {
         type ipv6_addr
         flags dynamic, timeout
         }
@@ -439,8 +439,8 @@ supported_decisions_types:
 #to change log prefix
 deny_log_prefix: " [(CrowdSec BLOCK)]: "
 #to change the blacklists name
-blacklists_ipv4: crowdsec-blacklist-ipv4
-blacklists_ipv6: crowdsec-blacklist-ipv6
+blacklists_ipv4: crowdsec-blacklists-ipv4
+blacklists_ipv6: crowdsec-blacklists-ipv6
 #type of ipset to use
 ipset_type: nethash
 #if present, insert rule in those chains
