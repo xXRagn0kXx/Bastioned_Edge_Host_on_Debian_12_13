@@ -356,12 +356,17 @@ CrowdSec Agent (LSO): Detecta ataques basandose en escenarios.
 Bouncer: Aplica las medidas de mitigacion (bloqueos) basandose en las decisiones del agente.
 
 Para nuestro caso como usamos Debian con SSH y VPN en la maquina instalamos:
-
  ```bash
 sudo cscli collections install crowdsecurity/linux
 sudo cscli collections install crowdsecurity/sshd
 sudo cscli collections install crowdsecurity/wireguard
 ```
+
+Si nos arrependitmos de alguna: Ejemplo VPN
+ ```bash
+cscli collections remove crowdsec/wireguard-vpn
+ ```
+
 :book: Tienes todas las colecciones disponibles con:
  ```bash
 sudo cscli collections list -a
