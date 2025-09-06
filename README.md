@@ -400,12 +400,11 @@ cscli scenarios list
 ```
 ---
 En resumen:
-CrowdSec Agent (LSO): Detecta ataques basandose en escenarios.
-
-Bouncer: Aplica las medidas de mitigacion (bloqueos) basandose en las decisiones del agente.
-
+* CrowdSec Agent (LSO): Detecta ataques basandose en escenarios.
+* Bouncer: Aplica las medidas de mitigacion (bloqueos) basandose en las decisiones del agente.
 
 ## 3.3 Integracion con nftables
+
 El bouncer leera las decisiones generadas por Crowdsec (por ejemplo, detectar intentos fallidos de SSH o actividad sospechosa) y actualizara automaticamente
 el conjunto blocklist definido en tu archivo de nftables. 
 
@@ -414,19 +413,25 @@ De esta forma, las IPs maliciosas quedaran bloqueadas durante el tiempo configur
 Si deseas que CrowdSec actualice las listas en tu fichero de reglas personalizadas, debes modificar la configuracion del bouncer para que apunte a la misma tabla y cadena
 donde se encuentran tus sets en el fichero /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
 
-En el apartado deny_log lo cambiaremos de "false" a "true" y mas abajo descomentamos deny_log_prefix y lo personalizamos con " [(CrowdSec BLOCK)]: "
+* En deny_log lo cambiaremos de "false" a "true" y mas abajo descomentamos deny_log_prefix y lo personalizamos con " [(CrowdSec BLOCK)]: "
+* En el apartado de blacklists es importante especificar los set de blacklists creadas para CrowdSec en nuestro /etc/nftables.conf (crowdsec-blacklist-ipv4 y crowdsec-blacklist-ipv6)
+* En el apartado  ## nftables del fichero debemos modificar los valores "table" y "chain" con "filter" e "input" tal y como hemos puesto nuestro fichero /etc/nftables.conf tanto para el apartado IPv4 como IPv6.
 
-En el apartado de blacklists es importante especificar los set de blacklists creadas para CrowdSec en nuestro /etc/nftables.conf (crowdsec-blacklist-ipv4 y crowdsec-blacklist-ipv6)
-        
-En el apartado  ## nftables del fichero debemos modificar los valores "table" y "chain" con "filter" e "input" tal y como hemos puesto nuestro fichero /etc/nftables.conf tanto para el apartado IPv4 como IPv6.
-
-Editamos:
+Registro de la API:
+Tranquilos, este es rapido, Crowsec esta heho para poder tener en un sitio el bouncer y en otro la API.
+como en este caso lo tenemos todo junto solo tenemos que generarla y añadirla al bouncer.
+ Para generarla:
+ ```bash
+ cscli bouncers add crowdsec-firewall-bouncer
+ ```
+Con la key que nos genere la introduciremos mas adelante en el archivo /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
  ```bash
 sudo   nano /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
  ```
 
  Deberiais editar solo esto:
   ```yaml
+api_key: SWB4M4qrFKm9N5h2v6xT7MB8hGTGhZ1E+oCBFze1akI
 deny_log: true
 blacklists_ipv4: crowdsec-blacklists-ipv4
 blacklists_ipv6: crowdsec-blacklists-ipv6
