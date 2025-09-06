@@ -1,4 +1,4 @@
-# Protect Edge Host on Debian using NFtables + CrowdSec
+# Protect Edge Host on Debian (NFtables + CrowdSec)
 
 En esta guia aprenderemos a bastionar un equipo con acceso desde internet para usarlo de frontera(VPN) y estar algo mas protegido de las amenazas de internet (no existe sistema 100% seguro).
 
