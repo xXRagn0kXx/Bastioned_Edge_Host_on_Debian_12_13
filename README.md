@@ -434,6 +434,8 @@ sudo   nano /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
   ```yaml
 api_key: SWB4M4qrFKm9N5h2v6xT7MB8hGTGhZ1E+oCBFze1akI
 deny_log: true
+#to change log prefix
+deny_log_prefix: " [(CrowdSec BLOCK)]: "
 blacklists_ipv4: crowdsec-blacklists-ipv4
 blacklists_ipv6: crowdsec-blacklists-ipv6
 ## nftables
