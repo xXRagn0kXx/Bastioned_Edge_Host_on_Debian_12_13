@@ -425,6 +425,7 @@ como en este caso lo tenemos todo junto solo tenemos que generarla y añadirla a
  cscli bouncers add crowdsec-firewall-bouncer
  ```
 Con la key que nos genere la introduciremos mas adelante en el archivo /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+sustituyendo <API_KEY>:
  ```bash
 sudo   nano /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
  ```
